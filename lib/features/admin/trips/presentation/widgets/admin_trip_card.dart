@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
+import 'package:rahala/core/shared/widgets/app_network_image.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 
@@ -55,8 +56,8 @@ class AdminTripCard extends StatelessWidget {
                 // Trip Image Thumbnail
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppSizes.r8),
-                  child: Image.asset(
-                    imagePath,
+                  child: AppNetworkImage(
+                    imageUrl: imagePath,
                     width: 110.w,
                     height: 85.h,
                     fit: BoxFit.cover,

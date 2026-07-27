@@ -66,12 +66,11 @@ class AdminStatCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: AppTextStyles.headlineMedium.copyWith(
+                  style: AppTextStyles.headlineSmall.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                AppSizes.p4.verticalSpace,
                 Text(
                   title,
                   style: AppTextStyles.bodySmall.copyWith(

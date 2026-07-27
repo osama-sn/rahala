@@ -16,7 +16,8 @@
     "unknown": "An unknown error occurred",
     "network": "Network connection error",
     "server": "Server error",
-    "unauthorized": "Unauthorized access"
+    "unauthorized": "Unauthorized access",
+    "cancel": "Request cancelled"
   },
   "validation": {
     "required": "This field is required",

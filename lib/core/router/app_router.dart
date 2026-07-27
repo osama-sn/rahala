@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_booking_details_page.dart';
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_bookings_page.dart';
@@ -18,6 +19,8 @@ import 'route_names.dart';
 
 class AppRouter {
   AppRouter._();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   static final GoRouter router = GoRouter(
     initialLocation: RouteNames.splash,
