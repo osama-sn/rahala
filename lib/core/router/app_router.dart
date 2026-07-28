@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_booking_details_page.dart';
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_bookings_page.dart';
 import 'package:rahala/features/admin/dashboard/presentation/pages/admin_dashboard_page.dart';
-import 'package:rahala/features/admin/trips/presentation/pages/add_trip_page.dart';
 import 'package:rahala/features/admin/trips/presentation/pages/admin_trips_page.dart';
 import 'package:rahala/features/user/auth/presentation/pages/login_page.dart';
 import 'package:rahala/features/user/auth/presentation/pages/register_page.dart';
@@ -80,10 +79,10 @@ class AppRouter {
           return AdminBookingsPage(initialTripFilter: tripTitle);
         },
       ),
-      GoRoute(
-        path: RouteNames.addTrip,
-        builder: (context, state) => const AddTripPage(),
-      ),
+      // GoRoute(
+      //   path: RouteNames.addTrip,
+      //   builder: (context, state) => const AddTripPage(),
+      // ),
       GoRoute(
         path: RouteNames.adminBookingDetails,
         builder: (context, state) {

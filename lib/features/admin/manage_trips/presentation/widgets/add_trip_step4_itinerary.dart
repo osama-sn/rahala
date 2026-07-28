@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:rahala/features/admin/manage_trips/data/models/trip_request_model.dart';
 import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/shared/widgets/app_button.dart';
@@ -9,10 +7,9 @@ import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 
 class AddTripStep4Itinerary extends StatelessWidget {
-  final List<Map<String, dynamic>> days;
+  final List<TripDayRequest> days;
   final VoidCallback onAddDay;
   final ValueChanged<int> onRemoveDay;
-  final void Function(Map<String, dynamic> activity) onPickActivityImage;
   final void Function(int dayIndex) onAddActivity;
 
   const AddTripStep4Itinerary({
@@ -20,7 +17,6 @@ class AddTripStep4Itinerary extends StatelessWidget {
     required this.days,
     required this.onAddDay,
     required this.onRemoveDay,
-    required this.onPickActivityImage,
     required this.onAddActivity,
   });
 
@@ -31,7 +27,7 @@ class AddTripStep4Itinerary extends StatelessWidget {
       children: [
         ...List.generate(days.length, (dayIndex) {
           final day = days[dayIndex];
-          final activities = (day['activities'] as List<dynamic>);
+          final activities = day.activities;
 
           return Container(
             margin: EdgeInsets.only(bottom: AppSizes.p20),
@@ -66,13 +62,13 @@ class AddTripStep4Itinerary extends StatelessWidget {
                 ),
                 SizedBox(height: AppSizes.p8),
                 TextFormField(
-                  initialValue: day['title'] as String,
+                  initialValue: day.title,
                   decoration: const InputDecoration(
                     labelText: 'عنوان اليوم',
                     hintText: 'مثال: الوصول والتسكين بالفندق',
                   ),
                   onChanged: (val) {
-                    day['title'] = val;
+                    day.title = val;
                   },
                 ),
                 SizedBox(height: AppSizes.p16),
@@ -111,9 +107,7 @@ class AddTripStep4Itinerary extends StatelessWidget {
     );
   }
 
-  Widget _buildActivityCard(Map<String, dynamic> act) {
-    final XFile? activityImage = act['imageFile'] as XFile?;
-
+  Widget _buildActivityCard(ActivityRequest act) {
     return Container(
       margin: EdgeInsets.only(bottom: AppSizes.p12),
       padding: EdgeInsets.all(AppSizes.p12),
@@ -129,75 +123,33 @@ class AddTripStep4Itinerary extends StatelessWidget {
             children: [
               Expanded(
                 child: TextFormField(
-                  initialValue: act['title'] as String,
+                  initialValue: act.title,
                   decoration: InputDecoration(
                     labelText: AppStrings.adminActivityTitleLabel,
                   ),
-                  onChanged: (val) => act['title'] = val,
+                  onChanged: (val) => act.title = val,
                 ),
               ),
               SizedBox(width: AppSizes.p8),
               Expanded(
                 child: TextFormField(
-                  initialValue: act['time'] as String,
+                  initialValue: act.time,
                   decoration: InputDecoration(
                     labelText: AppStrings.adminActivityTimeLabel,
                   ),
-                  onChanged: (val) => act['time'] = val,
+                  onChanged: (val) => act.time = val,
                 ),
               ),
             ],
           ),
           SizedBox(height: AppSizes.p8),
           TextFormField(
-            initialValue: act['location'] as String,
+            initialValue: act.location,
             decoration: InputDecoration(
               labelText: AppStrings.adminActivityLocationLabel,
             ),
-            onChanged: (val) => act['location'] = val,
+            onChanged: (val) => act.location = val,
           ),
-          SizedBox(height: AppSizes.p8),
-          if (activityImage != null)
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppSizes.r8),
-                  child: Image.file(
-                    File(activityImage.path),
-                    width: 60.w,
-                    height: 60.h,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(width: AppSizes.p8),
-                TextButton(
-                  onPressed: () {
-                    act['imageFile'] = null;
-                  },
-                  child: Text(
-                    'حذف الصورة',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.error,
-                    ),
-                  ),
-                ),
-              ],
-            )
-          else
-            OutlinedButton.icon(
-              onPressed: () => onPickActivityImage(act),
-              icon: Icon(
-                Icons.add_photo_alternate_outlined,
-                size: 16.r,
-                color: AppColors.primary,
-              ),
-              label: Text(
-                AppStrings.adminPickActivityImageOptional,
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
         ],
       ),
     );

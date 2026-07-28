@@ -312,4 +312,18 @@ class AppStrings {
   static String get adminPendingBookings => 'الحجوزات المعلقة';
   static String get adminTotalRevenue => 'إجمالي الإيرادات';
   static String get bookingsViewDetails => 'عرض التفاصيل';
+  static String get adminEditTripTitle => 'تعديل الرحلة';
+  static String get adminDeleteTripConfirmTitle => 'حذف الرحلة';
+  static String get adminDeleteTripConfirmDesc =>
+      'هل أنت متأكد من رغبتك في حذف هذه الرحلة؟ لا يمكن التراجع عن هذا الإجراء.';
+  static String get adminRepublishTripConfirmTitle => 'إعادة نشر الرحلة';
+  static String get adminRepublishTripConfirmDesc =>
+      'هل تريد إعادة نشر هذه الرحلة لتصبح متاحة للمستخدمين؟';
+  static String get adminTripCreatedSuccess => 'تم إضافة الرحلة بنجاح';
+  static String get adminTripUpdatedSuccess => 'تم تعديل الرحلة بنجاح';
+  static String get adminTripDeletedSuccess => 'تم حذف الرحلة بنجاح';
+  static String get adminTripRepublishedSuccess => 'تم إعادة نشر الرحلة بنجاح';
+  static String get adminSelectCity => 'اختر المدينة من القائمة';
+  static String get adminCustomCityHint => 'أو أدخل اسم مدينة أخرى';
+  static String get confirm => 'تأكيد';
 }

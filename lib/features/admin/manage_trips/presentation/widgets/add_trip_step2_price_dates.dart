@@ -6,24 +6,42 @@ import 'package:rahala/core/extensions/extensions.dart';
 import 'package:rahala/core/shared/widgets/app_text_field.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
+import 'package:rahala/features/admin/manage_trips/data/models/trip_request_model.dart';
 
-class AddTripStep2PriceDates extends StatelessWidget {
-  final TextEditingController priceController;
-  final TextEditingController capacityController;
-  final DateTime? startDate;
-  final DateTime? endDate;
-  final ValueChanged<DateTime> onStartDateSelected;
-  final ValueChanged<DateTime> onEndDateSelected;
+class AddTripStep2PriceDates extends StatefulWidget {
+  final CreateTripRequest formModel;
 
-  const AddTripStep2PriceDates({
-    super.key,
-    required this.priceController,
-    required this.capacityController,
-    required this.startDate,
-    required this.endDate,
-    required this.onStartDateSelected,
-    required this.onEndDateSelected,
-  });
+  const AddTripStep2PriceDates({super.key, required this.formModel});
+
+  @override
+  State<AddTripStep2PriceDates> createState() => _AddTripStep2PriceDatesState();
+}
+
+class _AddTripStep2PriceDatesState extends State<AddTripStep2PriceDates> {
+  late final TextEditingController _priceController;
+  late final TextEditingController _capacityController;
+
+  @override
+  void initState() {
+    super.initState();
+    _priceController = TextEditingController(
+      text: widget.formModel.price > 0
+          ? widget.formModel.price.toStringAsFixed(0)
+          : '',
+    );
+    _capacityController = TextEditingController(
+      text: widget.formModel.capacity > 0
+          ? widget.formModel.capacity.toString()
+          : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _priceController.dispose();
+    _capacityController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,17 +49,23 @@ class AddTripStep2PriceDates extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppTextField(
-          controller: priceController,
+          controller: _priceController,
           labelText: AppStrings.adminPriceLabel,
           hintText: AppStrings.adminPriceHint,
           type: AppTextFieldType.phone,
+          onChanged: (val) {
+            widget.formModel.price = double.tryParse(val.trim()) ?? 0.0;
+          },
         ),
         AppSizes.p16.verticalSpace,
         AppTextField(
-          controller: capacityController,
+          controller: _capacityController,
           labelText: AppStrings.adminCapacityLabel,
           hintText: AppStrings.adminCapacityHint,
           type: AppTextFieldType.phone,
+          onChanged: (val) {
+            widget.formModel.capacity = int.tryParse(val.trim()) ?? 0;
+          },
         ),
         AppSizes.p16.verticalSpace,
         Row(
@@ -49,15 +73,19 @@ class AddTripStep2PriceDates extends StatelessWidget {
             _buildDatePicker(
               context: context,
               label: AppStrings.adminStartDateLabel,
-              selectedDate: startDate,
-              onSelect: onStartDateSelected,
+              selectedDate: widget.formModel.startDate,
+              onSelect: (date) {
+                setState(() => widget.formModel.startDate = date);
+              },
             ).expanded(),
             AppSizes.p12.horizontalSpace,
             _buildDatePicker(
               context: context,
               label: AppStrings.adminEndDateLabel,
-              selectedDate: endDate,
-              onSelect: onEndDateSelected,
+              selectedDate: widget.formModel.endDate,
+              onSelect: (date) {
+                setState(() => widget.formModel.endDate = date);
+              },
             ).expanded(),
           ],
         ),
