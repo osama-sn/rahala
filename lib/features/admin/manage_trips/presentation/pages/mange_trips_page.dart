@@ -1,10 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
+import 'package:rahala/core/di/service_locator.dart';
+import 'package:rahala/core/shared/widgets/app_snackbar.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 import 'package:rahala/features/admin/manage_trips/data/models/trip_request_model.dart';
+import 'package:rahala/features/admin/manage_trips/presentation/cubit/admin_manage_trips_cubit.dart';
+import 'package:rahala/features/admin/manage_trips/presentation/cubit/admin_manage_trips_states.dart';
 import 'package:rahala/features/admin/manage_trips/presentation/widgets/add_trip_bottom_action_bar.dart';
 import 'package:rahala/features/admin/manage_trips/presentation/widgets/add_trip_step1_basic_info.dart';
 import 'package:rahala/features/admin/manage_trips/presentation/widgets/add_trip_step2_price_dates.dart';
@@ -16,10 +21,7 @@ import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 class AddTripPage extends StatefulWidget {
   final TripModel? tripToEdit;
 
-  const AddTripPage({
-    super.key,
-    this.tripToEdit,
-  });
+  const AddTripPage({super.key, this.tripToEdit});
 
   @override
   State<AddTripPage> createState() => _AddTripPageState();
@@ -30,11 +32,12 @@ class _AddTripPageState extends State<AddTripPage> {
   bool _isSubmitting = false;
 
   late final CreateTripRequest _tripRequest;
+  late final AdminManageTripsCubit _cubit;
 
   @override
   void initState() {
     super.initState();
-
+    _cubit = getIt<AdminManageTripsCubit>();
     _tripRequest = widget.tripToEdit != null
         ? CreateTripRequest.fromTrip(widget.tripToEdit!)
         : CreateTripRequest();
@@ -45,8 +48,8 @@ class _AddTripPageState extends State<AddTripPage> {
       setState(() {
         _currentStep++;
       });
-    } else {
-      debugPrint("Publish Trip");
+    } else if (!_isSubmitting) {
+      _submitTrip();
     }
   }
 
@@ -58,8 +61,49 @@ class _AddTripPageState extends State<AddTripPage> {
     }
   }
 
-  void _onSaveDraft() {
-    debugPrint("Save Draft");
+  Future<void> _submitTrip({String status = 'published'}) async {
+    if (_tripRequest.title.trim().isEmpty) {
+      AppSnackbar.showError(
+        context: context,
+        message: 'برجاء كتابة عنوان الرحلة',
+      );
+      return;
+    }
+    _tripRequest.status = status;
+    setState(() {
+      _isSubmitting = true;
+    });
+    final isEdit = widget.tripToEdit != null;
+    final bool success = isEdit
+        ? await _cubit.updateTrip(
+            widget.tripToEdit!.id,
+            _tripRequest,
+            coverImage: _tripRequest.coverImage,
+            galleryImages: _tripRequest.galleryImages,
+          )
+        : await _cubit.createTrip(
+            _tripRequest,
+            coverImage: _tripRequest.coverImage,
+            galleryImages: _tripRequest.galleryImages,
+          );
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (success) {
+      AppSnackbar.showSuccess(
+        context: context,
+        message: isEdit
+            ? AppStrings.adminTripUpdatedSuccess
+            : AppStrings.adminTripCreatedSuccess,
+      );
+      context.pop();
+    } else {
+      final state = _cubit.state;
+      final errorMessage = state is ManageTripsFailure
+          ? state.message
+          : AppStrings.errorOccurred;
+      AppSnackbar.showError(context: context, message: errorMessage);
+    }
   }
 
   @override
@@ -83,10 +127,7 @@ class _AddTripPageState extends State<AddTripPage> {
           icon: const Icon(Icons.arrow_back),
         ),
         centerTitle: true,
-        title: Text(
-          pageTitle,
-          style: AppTextStyles.titleLarge,
-        ),
+        title: Text(pageTitle, style: AppTextStyles.titleLarge),
       ),
       body: SafeArea(
         child: Column(
@@ -107,7 +148,7 @@ class _AddTripPageState extends State<AddTripPage> {
               currentStep: _currentStep,
               onPrevious: _onPreviousStep,
               onNext: _onNextStep,
-              onSaveDraft: _onSaveDraft,
+              onSaveDraft: () => _submitTrip(status: "draft"),
               isLoading: _isSubmitting,
             ),
           ],
@@ -119,19 +160,13 @@ class _AddTripPageState extends State<AddTripPage> {
   Widget _buildStepContent() {
     switch (_currentStep) {
       case 0:
-        return AddTripStep1BasicInfo(
-          formModel: _tripRequest,
-        );
+        return AddTripStep1BasicInfo(formModel: _tripRequest);
 
       case 1:
-        return AddTripStep2PriceDates(
-          formModel: _tripRequest,
-        );
+        return AddTripStep2PriceDates(formModel: _tripRequest);
 
       case 2:
-        return AddTripStep3MediaServices(
-          formModel: _tripRequest,
-        );
+        return AddTripStep3MediaServices(formModel: _tripRequest);
 
       case 3:
         return AddTripStep4Itinerary(
@@ -140,9 +175,7 @@ class _AddTripPageState extends State<AddTripPage> {
           onAddDay: () {
             setState(() {
               _tripRequest.days.add(
-                TripDayRequest(
-                  dayNumber: _tripRequest.days.length + 1,
-                ),
+                TripDayRequest(dayNumber: _tripRequest.days.length + 1),
               );
             });
           },
@@ -155,9 +188,7 @@ class _AddTripPageState extends State<AddTripPage> {
 
           onAddActivity: (dayIndex) {
             setState(() {
-              _tripRequest.days[dayIndex].activities.add(
-                ActivityRequest(),
-              );
+              _tripRequest.days[dayIndex].activities.add(ActivityRequest());
             });
           },
         );

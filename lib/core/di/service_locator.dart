@@ -3,6 +3,9 @@ import 'package:rahala/core/network/dio_client.dart';
 import 'package:rahala/features/admin/dashboard/data/datasourece/admin_dashboard_remote_data_source.dart';
 import 'package:rahala/features/admin/dashboard/data/repositories/admin_dashboard_stats_repository.dart';
 import 'package:rahala/features/admin/dashboard/presentation/cubit/admin_cubit.dart';
+import 'package:rahala/features/admin/manage_trips/data/datasource/admin_manage_trips_data_source.dart';
+import 'package:rahala/features/admin/manage_trips/data/repositories/admin_manage_trips_repository.dart';
+import 'package:rahala/features/admin/manage_trips/presentation/cubit/admin_manage_trips_cubit.dart';
 import 'package:rahala/features/categories/data/datasources/categories_remote_data_source.dart';
 import 'package:rahala/features/categories/data/repositories/categories_repository.dart';
 import 'package:rahala/features/categories/presentation/cubits/categories_cubit.dart';
@@ -20,7 +23,6 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(getIt()),
   );
-
   getIt.registerLazySingleton<AdminDashboardRemoteDataSource>(
     () => AdminDashboardRemoteDataSourceImpl(dioClient: getIt()),
   );
@@ -29,6 +31,9 @@ Future<void> initServiceLocator() async {
   );
   getIt.registerLazySingleton<CategoriesRemoteDataSource>(
     () => CategoriesRemoteDataSourceImpl(getIt()),
+  );
+  getIt.registerLazySingleton<AdminManageTripsDataSource>(
+    () => AdminManageTripsDataSourceImpl(getIt()),
   );
   // repositories
   getIt.registerLazySingleton<AuthRepository>(
@@ -44,6 +49,9 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<CategoriesRepository>(
     () => CategoriesRepository(getIt()),
   );
+  getIt.registerLazySingleton<AdminManageTripsRepository>(
+    () => AdminManageTripsRepository(getIt()),
+  );
   // cubits
   getIt.registerFactory<AuthCubit>(() => AuthCubit(authRepository: getIt()));
   getIt.registerFactory<AdminCubit>(
@@ -51,4 +59,7 @@ Future<void> initServiceLocator() async {
   );
   getIt.registerFactory<AdminTripsCubit>(() => AdminTripsCubit(getIt()));
   getIt.registerFactory<CategoriesCubit>(() => CategoriesCubit(getIt()));
+  getIt.registerFactory<AdminManageTripsCubit>(
+    () => AdminManageTripsCubit(getIt()),
+  );
 }

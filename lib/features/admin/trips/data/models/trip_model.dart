@@ -15,7 +15,7 @@ class TripCategoryModel {
 
   factory TripCategoryModel.fromJson(Map<String, dynamic> json) {
     return TripCategoryModel(
-      id: json['_id'] as String? ?? '',
+      id: (json['_id'] ?? json['id']) as String? ?? '',
       nameEn: json['nameEn'] as String? ?? '',
       nameAr: json['nameAr'] as String? ?? '',
       slug: json['slug'] as String? ?? '',
@@ -53,7 +53,7 @@ class TripActivityModel {
 
   factory TripActivityModel.fromJson(Map<String, dynamic> json) {
     return TripActivityModel(
-      id: json['_id'] as String? ?? '',
+      id: (json['_id'] ?? json['id']) as String? ?? '',
       time: json['time'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
@@ -89,14 +89,21 @@ class TripDayModel {
 
   factory TripDayModel.fromJson(Map<String, dynamic> json) {
     return TripDayModel(
-      id: json['_id'] as String? ?? '',
-      dayNumber: json['dayNumber'] as int? ?? 0,
+      id: (json['_id'] ?? json['id']) as String? ?? '',
+      dayNumber: (json['dayNumber'] as num?)?.toInt() ?? 0,
       title: json['title'] as String? ?? '',
       activities:
           (json['activities'] as List<dynamic>?)
               ?.map(
-                (e) => TripActivityModel.fromJson(e as Map<String, dynamic>),
+                (e) => e is Map<String, dynamic>
+                    ? TripActivityModel.fromJson(e)
+                    : (e is Map
+                          ? TripActivityModel.fromJson(
+                              Map<String, dynamic>.from(e),
+                            )
+                          : null),
               )
+              .whereType<TripActivityModel>()
               .toList() ??
           [],
     );
@@ -168,19 +175,31 @@ class TripModel {
       gallery.map((e) => 'https://rahala.duckdns.org$e').toList();
   factory TripModel.fromJson(Map<String, dynamic> json) {
     return TripModel(
-      id: json['_id'] as String? ?? '',
+      id: (json['_id'] ?? json['id']) as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       origin: json['origin'] as String? ?? '',
       destination: json['destination'] as String? ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      capacity: json['capacity'] as int? ?? 0,
-      availableSeats: json['availableSeats'] as int? ?? 0,
+      capacity: (json['capacity'] as num?)?.toInt() ?? 0,
+      availableSeats: (json['availableSeats'] as num?)?.toInt() ?? 0,
       startDate: json['startDate'] as String? ?? '',
       endDate: json['endDate'] as String? ?? '',
-      category: json['category'] != null
+      category: json['category'] is Map<String, dynamic>
           ? TripCategoryModel.fromJson(json['category'] as Map<String, dynamic>)
-          : null,
+          : (json['category'] is Map
+                ? TripCategoryModel.fromJson(
+                    Map<String, dynamic>.from(json['category'] as Map),
+                  )
+                : (json['category'] is String
+                      ? TripCategoryModel(
+                          id: json['category'] as String,
+                          nameEn: '',
+                          nameAr: '',
+                          slug: '',
+                          image: '',
+                        )
+                      : null)),
       status: json['status'] as String? ?? 'published',
       createdBySystem: json['createdBySystem'] as bool? ?? false,
       isProtected: json['isProtected'] as bool? ?? false,
@@ -202,10 +221,17 @@ class TripModel {
           [],
       cancelPolicy: json['cancelPolicy'] as String? ?? '',
       averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0.0,
-      reviewsCount: json['reviewsCount'] as int? ?? 0,
+      reviewsCount: (json['reviewsCount'] as num?)?.toInt() ?? 0,
       days:
           (json['days'] as List<dynamic>?)
-              ?.map((e) => TripDayModel.fromJson(e as Map<String, dynamic>))
+              ?.map(
+                (e) => e is Map<String, dynamic>
+                    ? TripDayModel.fromJson(e)
+                    : (e is Map
+                          ? TripDayModel.fromJson(Map<String, dynamic>.from(e))
+                          : null),
+              )
+              .whereType<TripDayModel>()
               .toList() ??
           [],
       createdAt: json['createdAt'] as String? ?? '',

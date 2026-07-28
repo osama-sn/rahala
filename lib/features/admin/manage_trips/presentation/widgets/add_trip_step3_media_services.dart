@@ -27,22 +27,9 @@ class _AddTripStep3MediaServicesState extends State<AddTripStep3MediaServices> {
   late final TextEditingController _customIncludedController;
   late final TextEditingController _customExcludedController;
 
-  final List<String> _presetIncludedOptions = [
-    'انتقالات مكيفة',
-    'إقامة فندقية',
-    'وجبات (إفطار وغداء)',
-    'مرشد سياحي',
-    'تذاكر دخول المزارات',
-    'برنامج ترفيهي',
-    'سهرة بدوية',
-  ];
+  final List<String> _presetIncludedOptions = [];
 
-  final List<String> _presetExcludedOptions = [
-    'المشروبات الإضافية',
-    'المصاريف الشخصية',
-    'الإكراميات (البقشيش)',
-    'الألعاب المائية الفردية',
-  ];
+  final List<String> _presetExcludedOptions = [];
 
   @override
   void initState() {
@@ -248,7 +235,7 @@ class _AddTripStep3MediaServicesState extends State<AddTripStep3MediaServices> {
             return FilterChip(
               label: Text(service),
               selected: isSelected,
-              selectedColor: AppColors.primaryLight.withValues(alpha: 0.3),
+              selectedColor: AppColors.primaryLight.withValues(alpha: 0.7),
               checkmarkColor: AppColors.primary,
               onSelected: (_) {
                 setState(() {
@@ -306,7 +293,7 @@ class _AddTripStep3MediaServicesState extends State<AddTripStep3MediaServices> {
             return FilterChip(
               label: Text(service),
               selected: isSelected,
-              selectedColor: AppColors.warning.withValues(alpha: 0.25),
+              selectedColor: AppColors.warning.withValues(alpha: 0.7),
               checkmarkColor: AppColors.warning,
               onSelected: (_) {
                 setState(() {
