@@ -107,15 +107,14 @@ class _AddTripStep1BasicInfoState extends State<AddTripStep1BasicInfo> {
     required String selectedValue,
     required ValueChanged<String?> onChanged,
   }) {
-    //
-    final currentMatch = AppCities.list.cast<CityModel?>().firstWhere((
-      element,
-    ) {
-      return element?.name == selectedValue;
-    }, orElse: () => null);
+    final cityNames = AppCities.list.map((c) => c.name).toList();
 
-    final effectiveValue =
-        currentMatch?.name ?? (selectedValue.isNotEmpty ? selectedValue : null);
+    if (selectedValue.isNotEmpty && !cityNames.contains(selectedValue)) {
+      cityNames.insert(0, selectedValue);
+    }
+
+    final effectiveValue = selectedValue.isNotEmpty ? selectedValue : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -138,10 +137,10 @@ class _AddTripStep1BasicInfoState extends State<AddTripStep1BasicInfo> {
                   color: AppColors.textSecondary,
                 ),
               ),
-              items: AppCities.list.map((city) {
+              items: cityNames.map((city) {
                 return DropdownMenuItem<String>(
-                  value: city.name,
-                  child: Text('${city.name} ', style: AppTextStyles.bodyMedium),
+                  value: city,
+                  child: Text(city, style: AppTextStyles.bodyMedium),
                 );
               }).toList(),
               onChanged: onChanged,

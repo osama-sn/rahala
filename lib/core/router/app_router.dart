@@ -4,6 +4,7 @@ import 'package:rahala/features/admin/bookings/presentation/pages/admin_booking_
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_bookings_page.dart';
 import 'package:rahala/features/admin/dashboard/presentation/pages/admin_dashboard_page.dart';
 import 'package:rahala/features/admin/manage_trips/presentation/pages/mange_trips_page.dart';
+import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 import 'package:rahala/features/admin/trips/presentation/pages/admin_trips_page.dart';
 import 'package:rahala/features/user/auth/presentation/pages/login_page.dart';
 import 'package:rahala/features/user/auth/presentation/pages/register_page.dart';
@@ -71,7 +72,7 @@ class AppRouter {
       ),
       GoRoute(
         path: RouteNames.adminTrips,
-        builder: (context, state) => const AdminTripsPage(),
+        builder: (context, state) => const AdminTripsView(),
       ),
       GoRoute(
         path: RouteNames.adminBookings,
@@ -82,7 +83,10 @@ class AppRouter {
       ),
       GoRoute(
         path: RouteNames.addTrip,
-        builder: (context, state) => const AddTripPage(),
+        builder: (context, state) {
+          final trip = state.extra as TripModel?;
+          return AddTripPage(tripToEdit: trip);
+        },
       ),
       GoRoute(
         path: RouteNames.adminBookingDetails,
