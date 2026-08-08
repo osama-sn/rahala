@@ -22,8 +22,8 @@ class AuthRepository {
         email: email,
         password: password,
       );
-      _cacheAuthData(response.data);
-      return Right(response.data.user);
+      _cacheAuthData(response.data!);
+      return Right(response.data!.user!);
     } catch (e) {
       return Left(ServerFailure(ApiErrorHandler.handle(e)));
     }
@@ -46,9 +46,9 @@ class AuthRepository {
 
   Future<void> _cacheAuthData(AuthUserData response) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', response.accessToken);
-    await prefs.setString('refresh_token', response.refreshToken);
-    await prefs.setString('cached_user', jsonEncode(response.user.toJson()));
+    await prefs.setString('access_token', response.accessToken!);
+    await prefs.setString('refresh_token', response.refreshToken!);
+    await prefs.setString('cached_user', jsonEncode(response.user!.toJson()));
   }
 
   // logout

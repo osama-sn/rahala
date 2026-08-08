@@ -4,17 +4,22 @@ import 'package:rahala/features/admin/bookings/data/models/admin_booking_model.d
 import 'package:rahala/features/admin/bookings/data/repositories/admin_booking_repo.dart';
 import 'package:rahala/features/admin/bookings/presentation/cubit/admin_booking_states.dart';
 
-class AdminBookingCubit extends Cubit<AdminBookingsState> {
+class AdminBookingCubit extends Cubit<AdminBookingState> {
   final AdminBookingRepository repo;
-  AdminBookingCubit({required this.repo}) : super(AdminBookingsInitial());
+  AdminBookingCubit({required this.repo}) : super(AdminBookingInitial());
   List<AdminBookingModel> _allBooking = [];
   String _currentStatusFilter = 'all';
   String _currentTripFilter = AppStrings.adminFilterAllTrips;
+  int _currentPage = 1;
+  int _totalPages = 1;
+  int _totalItems = 0;
+  bool _hasMore = false;
+  bool _isLoadingMore = false;
 
   Future<void> fetchBookings() async {
-    emit(AdminBookingsLoading());
-    final result = await repo.getBookings();
-    result.fold((failure) => emit(AdminBookingsError(failure.message)), (
+    emit(AdminBookingLoading());
+    final result = await repo.getBookings(limit: 5, page: 1);
+    result.fold((failure) => emit(AdminBookingError(failure.message)), (
       success,
     ) {
       _allBooking = success.bookings;
@@ -25,7 +30,7 @@ class AdminBookingCubit extends Cubit<AdminBookingsState> {
   void _emitFilteredState() {
     final filteredBookings = _allBooking.where(_matchedFilters).toList();
     emit(
-      AdminBookingsSuccess(
+      AdminBookingSuccess(
         allBookings: _allBooking,
         filteredBookings: filteredBookings,
         pendingCount: 0,
@@ -34,6 +39,36 @@ class AdminBookingCubit extends Cubit<AdminBookingsState> {
         statusFilter: _currentStatusFilter,
         tripFilter: _currentTripFilter,
       ),
+    );
+  }
+
+  Future<void> fetchNextPage() async {
+    final currentState = state;
+    if (currentState is! AdminBookingSuccess) return;
+    if (!_hasMore || _isLoadingMore) return;
+
+    _isLoadingMore = true;
+    emit(currentState.copyWith(isLoadingMore: true));
+
+    final nextPage = _currentPage + 1;
+    final result = await repo.getBookings(page: nextPage, limit: 5);
+
+    result.fold(
+      (failure) {
+        _isLoadingMore = false;
+        emit(currentState.copyWith(isLoadingMore: false));
+      },
+      (paginated) {
+        _currentPage = paginated.currentPage;
+        _totalPages = paginated.totalPages;
+        _totalItems = paginated.totalItems;
+        _hasMore = _currentPage < _totalPages;
+        _isLoadingMore = false;
+        final updatedList = List<AdminBookingModel>.from(_allBooking)
+          ..addAll(paginated.bookings);
+        _allBooking = updatedList;
+        _emitFilteredState();
+      },
     );
   }
 
@@ -87,7 +122,7 @@ class AdminBookingCubit extends Cubit<AdminBookingsState> {
     result.fold(
       (failure) {
         emit(AdminBookingUpdateStatusError(failure.message));
-        if (previousState is AdminBookingsSuccess) {
+        if (previousState is AdminBookingSuccess) {
           emit(previousState);
         } else {
           _emitFilteredState();

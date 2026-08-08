@@ -37,7 +37,7 @@ class AdminBookingRemoteDataSourceImpl implements AdminBookingRemoteDataSource {
         queryParams['status'] = status;
       }
       final response = await dioClient.dio.get(
-        ApiEndpoints.adminTrips,
+        ApiEndpoints.adminBooking,
         queryParameters: queryParams,
       );
       return PaginatedAdminBookingsModel.fromJson(response.data);

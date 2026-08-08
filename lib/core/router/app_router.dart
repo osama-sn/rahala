@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rahala/features/admin/bookings/data/models/admin_booking_model.dart';
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_booking_details_page.dart';
 import 'package:rahala/features/admin/bookings/presentation/pages/admin_bookings_page.dart';
 import 'package:rahala/features/admin/dashboard/presentation/pages/admin_dashboard_page.dart';
@@ -76,10 +77,7 @@ class AppRouter {
       ),
       GoRoute(
         path: RouteNames.adminBookings,
-        builder: (context, state) {
-          final tripTitle = state.extra as String?;
-          return AdminBookingsPage(initialTripFilter: tripTitle);
-        },
+        builder: (context, state) => const AdminBookingview(),
       ),
       GoRoute(
         path: RouteNames.addTrip,
@@ -91,8 +89,8 @@ class AppRouter {
       GoRoute(
         path: RouteNames.adminBookingDetails,
         builder: (context, state) {
-          final bookingData = state.extra as Map<String, dynamic>?;
-          return AdminBookingDetailsPage(bookingData: bookingData);
+          final booking = state.extra as AdminBookingModel?;
+          return AdminBookingDetailsPage(booking: booking);
         },
       ),
     ],

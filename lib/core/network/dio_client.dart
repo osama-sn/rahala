@@ -78,9 +78,8 @@ class DioClient {
                 final newAccessToken = refreshTokenResponse.accessToken;
                 final newRefreshToken = refreshTokenResponse.refreshToken;
 
-                await prefs.setString("access_token", newAccessToken);
-
-                await prefs.setString("refresh_token", newRefreshToken);
+                await prefs.setString("access_token", newAccessToken!);
+                await prefs.setString("refresh_token", newRefreshToken!);
 
                 final requestOptions = e.requestOptions;
 

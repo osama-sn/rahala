@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:rahala/core/errors/api_error_handler.dart';
 import 'package:rahala/core/errors/failures.dart';
@@ -20,17 +22,21 @@ class AdminBookingRepository {
         status: status,
       );
       return right(result);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log(e.toString(), stackTrace: stackTrace);
       return left(ServerFailure(ApiErrorHandler.handle(e)));
     }
   }
 
-  Future<Either<Failure,AdminBookingModel>> updateBookingStatus({
+  Future<Either<Failure, AdminBookingModel>> updateBookingStatus({
     required String bookingId,
     required String action,
-  })async{
+  }) async {
     try {
-      final result = await dataSource.updateBookingStatus(bookingId: bookingId, action: action);
+      final result = await dataSource.updateBookingStatus(
+        bookingId: bookingId,
+        action: action,
+      );
       return right(result);
     } catch (e) {
       return left(ServerFailure(ApiErrorHandler.handle(e)));

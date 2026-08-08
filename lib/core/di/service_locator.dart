@@ -1,5 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:rahala/core/network/dio_client.dart';
+import 'package:rahala/features/admin/bookings/data/datasources/admin_booking_remote_data_source.dart';
+import 'package:rahala/features/admin/bookings/data/repositories/admin_booking_repo.dart';
+import 'package:rahala/features/admin/bookings/presentation/cubit/admin_booking_cubit.dart';
 import 'package:rahala/features/admin/dashboard/data/datasourece/admin_dashboard_remote_data_source.dart';
 import 'package:rahala/features/admin/dashboard/data/repositories/admin_dashboard_stats_repository.dart';
 import 'package:rahala/features/admin/dashboard/presentation/cubit/admin_cubit.dart';
@@ -35,6 +38,9 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<AdminManageTripsDataSource>(
     () => AdminManageTripsDataSourceImpl(getIt()),
   );
+  getIt.registerLazySingleton<AdminBookingRemoteDataSource>(
+    () => AdminBookingRemoteDataSourceImpl(dioClient: getIt()),
+  );
   // repositories
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepository(authRemoteDataSource: getIt()),
@@ -52,6 +58,9 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<AdminManageTripsRepository>(
     () => AdminManageTripsRepository(getIt()),
   );
+  getIt.registerLazySingleton<AdminBookingRepository>(
+    () => AdminBookingRepository(getIt()),
+  );
   // cubits
   getIt.registerFactory<AuthCubit>(() => AuthCubit(authRepository: getIt()));
   getIt.registerFactory<AdminCubit>(
@@ -61,5 +70,8 @@ Future<void> initServiceLocator() async {
   getIt.registerFactory<CategoriesCubit>(() => CategoriesCubit(getIt()));
   getIt.registerFactory<AdminManageTripsCubit>(
     () => AdminManageTripsCubit(getIt()),
+  );
+  getIt.registerFactory<AdminBookingCubit>(
+    () => AdminBookingCubit(repo: getIt()),
   );
 }

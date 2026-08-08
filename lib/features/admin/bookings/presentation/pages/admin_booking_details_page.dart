@@ -7,14 +7,12 @@ import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/extensions/extensions.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
+import 'package:rahala/features/admin/bookings/data/models/admin_booking_model.dart';
 
 class AdminBookingDetailsPage extends StatefulWidget {
-  final Map<String, dynamic>? bookingData;
+  final AdminBookingModel? booking;
 
-  const AdminBookingDetailsPage({
-    super.key,
-    this.bookingData,
-  });
+  const AdminBookingDetailsPage({super.key, this.booking});
 
   @override
   State<AdminBookingDetailsPage> createState() =>
@@ -23,40 +21,61 @@ class AdminBookingDetailsPage extends StatefulWidget {
 
 class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
   late String _currentStatus;
+  AdminBookingModel? _booking;
 
   @override
   void initState() {
     super.initState();
-    _currentStatus = widget.bookingData?['status'] ?? 'accepted';
+    _booking = widget.booking;
+    _currentStatus = widget.booking?.status ?? "pending";
   }
 
   @override
   Widget build(BuildContext context) {
-    final customerName =
-        widget.bookingData?['customerName'] ?? 'محمد أحمد';
-    final customerEmail =
-        widget.bookingData?['customerEmail'] ?? 'mohamed@example.com';
-    final customerPhone =
-        widget.bookingData?['customerPhone'] ?? '+20 100 123 4567';
+    final booking = _booking ?? widget.booking;
 
-    final tripTitle = widget.bookingData?['tripTitle'] ?? 'شرم الشيخ';
+    final customerName = booking?.user?.fullName ?? 'عميل رحالة';
+    final customerEmail = booking?.user?.email ?? '';
+    final customerPhone = booking?.user?.phone ?? '';
+
+    final tripTitle = (booking?.tripTitle.isNotEmpty == true)
+        ? booking!.tripTitle
+        : 'تفاصيل الرحلة';
+
     final tripDates =
-        widget.bookingData?['tripDates'] ?? '20 - 22 يونيو 2025';
-    const tripDuration = '3 أيام / 2 ليلة';
-    final tripImage = widget.bookingData?['tripImage'] ?? AppAssets.homeFeatured;
+        (booking?.trip != null && booking!.trip!.startDate.isNotEmpty)
+        ? '${booking.trip!.startDate.split('T').first} - ${booking.trip!.endDate.split('T').first}'
+        : 'مواعيد الرحلة';
 
-    final bookingNumber =
-        widget.bookingData?['bookingNumber'] ?? '#TRP-250620';
-    final requestDate =
-        widget.bookingData?['requestDate'] ?? '15 يونيو 2025 - 10:30 ص';
-    final passengersCount =
-        widget.bookingData?['passengersCount'] ?? '2 بالغ';
-    final paymentMethod =
-        widget.bookingData?['paymentMethod'] ?? 'بطاقة بنكية';
-    final totalAmount = widget.bookingData?['totalAmount'] ?? '6,000 ج.م';
+    final tripDuration = (booking?.durationText.isNotEmpty == true)
+        ? booking!.durationText
+        : 'مدة الرحلة';
 
-    final customerNotes = widget.bookingData?['customerNotes'] ??
-        'أتمنى توفير سيارة خاصة من وإلى المطار، ويفضل أن يكون الفندق في طابق علوي مع إطلالة مباشرة على البحر.';
+    final tripImage = (booking?.tripCoverImage.isNotEmpty == true)
+        ? booking!.tripCoverImage
+        : AppAssets.homeFeatured;
+
+    final bookingNumber = (booking != null && booking.id.isNotEmpty)
+        ? '#BK-${(booking.id.length > 6 ? booking.id.substring(booking.id.length - 6) : booking.id).toUpperCase()}'
+        : '#TRP-250620';
+
+    final requestDate = (booking != null && booking.createdAt.isNotEmpty)
+        ? booking.createdAt.split('T').first
+        : 'تاريخ الطلب';
+
+    final passengersCount = (booking != null)
+        ? '${booking.numberOfSeats} ${booking.numberOfSeats == 1 ? "مقعد" : "مقاعد"}'
+        : '1 مقعد';
+
+    final paymentMethod = 'دفع إلكتروني';
+
+    final totalAmount = (booking != null)
+        ? '${booking.totalPrice.toStringAsFixed(0)} ${AppStrings.currencyEGP}'
+        : '0 ج.م';
+
+    final customerNotes = (booking != null && booking.notes.isNotEmpty)
+        ? booking.notes
+        : 'لا توجد ملاحظات إضافية من العميل.';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -71,10 +90,7 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -136,7 +152,7 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
                 ],
               ),
             ).expanded(),
-            _buildBottomActionBar(context),
+            _buildBottomActionBar(context, customerPhone),
           ],
         ),
       ),
@@ -212,10 +228,7 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
     );
   }
 
-  Widget _buildSectionHeader({
-    required String title,
-    required IconData icon,
-  }) {
+  Widget _buildSectionHeader({required String title, required IconData icon}) {
     return Row(
       children: [
         Icon(icon, size: 18.r, color: AppColors.primary),
@@ -407,12 +420,18 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
       ),
       child: Column(
         children: [
-          _buildDetailRow(AppStrings.adminBookingNumberLabel, bookingNumber,
-              isHighlight: true),
+          _buildDetailRow(
+            AppStrings.adminBookingNumberLabel,
+            bookingNumber,
+            isHighlight: true,
+          ),
           AppSizes.p12.verticalSpace,
           _buildDetailRow(AppStrings.adminRequestDateLabel, requestDate),
           AppSizes.p12.verticalSpace,
-          _buildDetailRow(AppStrings.adminPassengersCountLabel, passengersCount),
+          _buildDetailRow(
+            AppStrings.adminPassengersCountLabel,
+            passengersCount,
+          ),
           AppSizes.p12.verticalSpace,
           _buildDetailRow(AppStrings.adminPaymentMethodLabel, paymentMethod),
           AppSizes.p12.verticalSpace,
@@ -442,8 +461,11 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value,
-      {bool isHighlight = false}) {
+  Widget _buildDetailRow(
+    String label,
+    String value, {
+    bool isHighlight = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -490,7 +512,7 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
     );
   }
 
-  Widget _buildBottomActionBar(BuildContext context) {
+  Widget _buildBottomActionBar(BuildContext context, String customerPhone) {
     return Container(
       padding: EdgeInsets.all(AppSizes.p16),
       decoration: BoxDecoration(
@@ -539,9 +561,7 @@ class _AdminBookingDetailsPageState extends State<AdminBookingDetailsPage> {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    'جاري الاتصال بالعميل على رقم ${widget.bookingData?['customerPhone'] ?? '+20 100 123 4567'}...',
-                  ),
+                  content: Text('جاري الاتصال بالعميل على رقم $customerPhone '),
                   backgroundColor: AppColors.primary,
                 ),
               );
