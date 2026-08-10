@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "928817188291",
+    "project_id": "rahala-b668e",
+    "storage_bucket": "rahala-b668e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928817188291:android:71cc147e3a8f6c56cb8176",
+        "android_client_info": {
+          "package_name": "com.rehala.travel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "928817188291-l9jlbc8cd6m5mf7ghiddha1ka3lk61vf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rehala.travel",
+            "certificate_hash": "a0398dbfa858703115546bdd0dad24f21e808a7d"
+          }
+        },
+        {
+          "client_id": "928817188291-8ovd48r68gp692etu39c27koqh0gte74.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlxrIDQIs4-p6XmGaJLFN_RE9jO-yG5s8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "928817188291-8ovd48r68gp692etu39c27koqh0gte74.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "928817188291-7nc32js80l4uquqn36594djmdqc3rhvb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rehala.travel"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

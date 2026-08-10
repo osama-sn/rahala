@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:rahala/core/constants/app_assets.dart';
 import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
+import 'package:rahala/core/di/service_locator.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 import 'package:rahala/core/shared/widgets/app_button.dart';
 import 'package:rahala/core/router/route_names.dart';
+import 'package:rahala/features/user/auth/presentation/cubit/auth_cubit.dart';
 import 'package:rahala/features/user/profile/presentation/widgets/profile_menu_item_widget.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -16,38 +19,46 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return BlocProvider<AuthCubit>(
+      create: (context) => getIt<AuthCubit>(),
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          AppStrings.profileTitle,
-          style: AppTextStyles.titleLarge.copyWith(color: AppColors.textPrimary),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings_outlined, color: AppColors.textPrimary),
-            onPressed: () => context.push(RouteNames.settings),
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            AppStrings.profileTitle,
+            style: AppTextStyles.titleLarge.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(AppSizes.p24),
-        child: Column(
-          children: [
-            _buildHeader(),
-            AppSizes.p32.verticalSpace,
-            _buildOptionsList(),
-            AppSizes.p32.verticalSpace,
-            _buildLogoutButton(),
-            AppSizes.p32.verticalSpace,
+          leading: IconButton(
+            icon: Icon(
+              Icons.notifications_outlined,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () {},
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.settings_outlined, color: AppColors.textPrimary),
+              onPressed: () => context.push(RouteNames.settings),
+            ),
           ],
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(AppSizes.p24),
+          child: Column(
+            children: [
+              _buildHeader(),
+              AppSizes.p32.verticalSpace,
+              _buildOptionsList(),
+              AppSizes.p32.verticalSpace,
+              _buildLogoutButton(context),
+              AppSizes.p32.verticalSpace,
+            ],
+          ),
         ),
       ),
     );
@@ -86,12 +97,16 @@ class ProfileTab extends StatelessWidget {
         AppSizes.p4.verticalSpace,
         Text(
           'ahmed.m@example.com',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
         AppSizes.p4.verticalSpace,
         Text(
           '+20 100 123 4567',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );
@@ -100,20 +115,35 @@ class ProfileTab extends StatelessWidget {
   Widget _buildOptionsList() {
     return Column(
       children: [
-        ProfileMenuItemWidget(title: AppStrings.profilePersonalData, icon: Icons.person_outline),
+        ProfileMenuItemWidget(
+          title: AppStrings.profilePersonalData,
+          icon: Icons.person_outline,
+        ),
         AppSizes.p12.verticalSpace,
-        ProfileMenuItemWidget(title: AppStrings.profileEditAccount, icon: Icons.edit_outlined),
+        ProfileMenuItemWidget(
+          title: AppStrings.profileEditAccount,
+          icon: Icons.edit_outlined,
+        ),
         AppSizes.p12.verticalSpace,
-        ProfileMenuItemWidget(title: AppStrings.profileChangePassword, icon: Icons.lock_outline),
+        ProfileMenuItemWidget(
+          title: AppStrings.profileChangePassword,
+          icon: Icons.lock_outline,
+        ),
         AppSizes.p12.verticalSpace,
-        ProfileMenuItemWidget(title: AppStrings.profileHelpSupport, icon: Icons.help_outline),
+        ProfileMenuItemWidget(
+          title: AppStrings.profileHelpSupport,
+          icon: Icons.help_outline,
+        ),
         AppSizes.p12.verticalSpace,
-        ProfileMenuItemWidget(title: AppStrings.profileAboutApp, icon: Icons.info_outline),
+        ProfileMenuItemWidget(
+          title: AppStrings.profileAboutApp,
+          icon: Icons.info_outline,
+        ),
       ],
     );
   }
 
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: AppButton.outlined(
@@ -121,7 +151,10 @@ class ProfileTab extends StatelessWidget {
         foregroundColor: Colors.red,
         borderColor: Colors.red.withValues(alpha: 0.3),
         icon: Icon(Icons.logout, color: Colors.red, size: 20.sp),
-        onPressed: () {},
+        onPressed: () {
+          context.read<AuthCubit>().logout();
+          context.goNamed(RouteNames.login);
+        },
       ),
     );
   }

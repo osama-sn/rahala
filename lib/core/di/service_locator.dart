@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:rahala/core/network/dio_client.dart';
+import 'package:rahala/core/services/google_sign_in.dart';
 import 'package:rahala/features/admin/bookings/data/datasources/admin_booking_remote_data_source.dart';
 import 'package:rahala/features/admin/bookings/data/repositories/admin_booking_repo.dart';
 import 'package:rahala/features/admin/bookings/presentation/cubit/admin_booking_cubit.dart';
@@ -21,6 +22,9 @@ import 'package:rahala/features/admin/trips/data/datasource/admin_trips_remote_d
 
 final GetIt getIt = GetIt.instance;
 Future<void> initServiceLocator() async {
+  //GOOGLE SIGN IN
+  getIt.registerLazySingleton<GoogleAuthService>(() => GoogleAuthService());
+
   getIt.registerLazySingleton<DioClient>(() => DioClient());
   // data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(
@@ -62,7 +66,9 @@ Future<void> initServiceLocator() async {
     () => AdminBookingRepository(getIt()),
   );
   // cubits
-  getIt.registerFactory<AuthCubit>(() => AuthCubit(authRepository: getIt()));
+  getIt.registerFactory<AuthCubit>(
+    () => AuthCubit(authRepository: getIt(), googleAuthService: getIt()),
+  );
   getIt.registerFactory<AdminCubit>(
     () => AdminCubit(adminDashboardStatsRepository: getIt()),
   );

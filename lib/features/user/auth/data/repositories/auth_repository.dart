@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:rahala/core/errors/api_error_handler.dart';
@@ -21,6 +22,44 @@ class AuthRepository {
       final response = await _authRemoteDataSource.login(
         email: email,
         password: password,
+      );
+      _cacheAuthData(response.data!);
+      return Right(response.data!.user!);
+    } catch (e) {
+      return Left(ServerFailure(ApiErrorHandler.handle(e)));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> register({
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String name,
+    required String phone,
+    File? profileImage,
+  }) async {
+    try {
+      final response = await _authRemoteDataSource.register(
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        name: name,
+        phone: phone,
+        profileImage: profileImage,
+      );
+      _cacheAuthData(response.data!);
+      return Right(response.data!.user!);
+    } catch (e) {
+      return Left(ServerFailure(ApiErrorHandler.handle(e)));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> googleLogin({
+    required String idToken,
+  }) async {
+    try {
+      final response = await _authRemoteDataSource.googleLogin(
+        idToken: idToken,
       );
       _cacheAuthData(response.data!);
       return Right(response.data!.user!);

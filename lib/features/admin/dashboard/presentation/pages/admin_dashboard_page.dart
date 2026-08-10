@@ -16,14 +16,20 @@ import 'package:rahala/features/admin/dashboard/presentation/cubit/admin_states.
 import 'package:rahala/features/admin/dashboard/presentation/widgets/admin_management_section.dart';
 import 'package:rahala/features/admin/dashboard/presentation/widgets/admin_stats_grid.dart';
 import 'package:rahala/features/admin/dashboard/presentation/widgets/admin_welcome_card.dart';
+import 'package:rahala/features/user/auth/presentation/cubit/auth_cubit.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AdminCubit>(
-      create: (context) => getIt<AdminCubit>()..fetchDashboardStats(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AdminCubit>(
+          create: (context) => getIt<AdminCubit>()..fetchDashboardStats(),
+        ),
+        BlocProvider<AuthCubit>(create: (context) => getIt<AuthCubit>()),
+      ],
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
@@ -31,13 +37,7 @@ class AdminDashboardPage extends StatelessWidget {
             AppStrings.adminDashboardTitle,
             style: AppTextStyles.titleLarge,
           ),
-          actions: [
-            IconButton(
-              tooltip: AppStrings.adminSwitchUserMode,
-              icon: const Icon(Icons.swap_horiz, color: AppColors.primary),
-              onPressed: () => context.go(RouteNames.home),
-            ),
-          ],
+          actions: [LogoutIcon()],
         ),
         body: SafeArea(
           child: BlocBuilder<AdminCubit, AdminStates>(
@@ -133,6 +133,22 @@ class AdminDashboardPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class LogoutIcon extends StatelessWidget {
+  const LogoutIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: AppStrings.adminSwitchUserMode,
+      icon: const Icon(Icons.logout, color: AppColors.primary),
+      onPressed: () {
+        context.read<AuthCubit>().logout();
+        context.go(RouteNames.login);
+      },
     );
   }
 }
