@@ -5,9 +5,12 @@ import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/extensions/extensions.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
+import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 
 class TripDetailsFeaturesGrid extends StatelessWidget {
-  const TripDetailsFeaturesGrid({super.key});
+  final TripModel trip;
+
+  const TripDetailsFeaturesGrid({super.key, required this.trip});
 
   @override
   Widget build(BuildContext context) {
@@ -17,20 +20,20 @@ class TripDetailsFeaturesGrid extends StatelessWidget {
         children: [
           FeatureCard(
             icon: Icons.group,
-            line1: '20',
+            line1: '${trip.availableSeats}',
             line2: AppStrings.tripDetailsAvailableSeats,
           ).expanded(),
           AppSizes.p8.horizontalSpace,
           FeatureCard(
             icon: Icons.calendar_today,
-            line1: '3',
+            line1: '${trip.days.length}',
             line2: AppStrings.tripDetailsDays,
           ).expanded(),
           AppSizes.p8.horizontalSpace,
-          const FeatureCard(
+          FeatureCard(
             icon: Icons.location_on,
             line1: '',
-            line2: 'شرم الشيخ',
+            line2: trip.destination,
           ).expanded(),
           AppSizes.p8.horizontalSpace,
           const FeatureCard(

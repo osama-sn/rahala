@@ -12,7 +12,7 @@ import 'package:rahala/features/user/auth/presentation/pages/register_page.dart'
 import 'package:rahala/features/user/bookings/presentation/pages/booking_confirmation_page.dart';
 import 'package:rahala/features/user/bookings/presentation/pages/booking_details_page.dart';
 import 'package:rahala/features/user/home/presentation/pages/home_page.dart';
-import 'package:rahala/features/user/home/presentation/pages/trip_details_page.dart';
+import 'package:rahala/features/user/trip_details/presentation/pages/trip_details_page.dart';
 import 'package:rahala/features/user/not_found/presentation/pages/not_found_page.dart';
 import 'package:rahala/features/user/profile/presentation/pages/profile_page.dart';
 import 'package:rahala/features/user/settings/presentation/pages/settings_page.dart';
@@ -47,7 +47,10 @@ class AppRouter {
       GoRoute(
         path: RouteNames.tripDetails,
         name: RouteNames.tripDetails,
-        builder: (context, state) => const TripDetailsPage(),
+        builder: (context, state) {
+          final trip = state.extra as TripModel;
+          return TripDetailsPage(trip: trip);
+        },
       ),
       GoRoute(
         path: RouteNames.bookingConfirmation,

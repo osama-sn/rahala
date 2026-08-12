@@ -4,9 +4,12 @@ import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
+import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 
 class TripDetailsHeaderInfo extends StatelessWidget {
-  const TripDetailsHeaderInfo({super.key});
+  final TripModel trip;
+
+  const TripDetailsHeaderInfo({super.key, required this.trip});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +24,7 @@ class TripDetailsHeaderInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'شرم الشيخ',
+                  trip.title,
                   style: AppTextStyles.displaySmall.copyWith(
                     color: AppColors.primaryDark,
                     fontWeight: FontWeight.bold,
@@ -29,7 +32,7 @@ class TripDetailsHeaderInfo extends StatelessWidget {
                 ),
                 AppSizes.p8.verticalSpace,
                 Text(
-                  '3 ${AppStrings.tripDetailsDays} / 2 ليلة',
+                  trip.durationText,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -46,14 +49,14 @@ class TripDetailsHeaderInfo extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '(ثلاثة تقييمات)',
+                    '(${trip.reviewsCount} تقييم)',
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.textHint,
                     ),
                   ),
                   AppSizes.p4.horizontalSpace,
                   Text(
-                    '4.8',
+                    trip.averageRating.toStringAsFixed(1),
                     style: AppTextStyles.labelMedium.copyWith(
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.bold,
@@ -78,7 +81,7 @@ class TripDetailsHeaderInfo extends StatelessWidget {
             ),
             AppSizes.p8.horizontalSpace,
             Text(
-              '2,950',
+              trip.price.toStringAsFixed(0),
               style: AppTextStyles.headlineMedium.copyWith(
                 color: AppColors.primaryDark,
                 fontWeight: FontWeight.bold,

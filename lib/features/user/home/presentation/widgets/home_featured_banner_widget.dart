@@ -6,6 +6,7 @@ import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/extensions/extensions.dart';
 import 'package:rahala/core/router/route_names.dart';
+import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 
@@ -15,7 +16,7 @@ class HomeFeaturedBannerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push(RouteNames.tripDetails),
+      onTap: () => context.push(RouteNames.tripDetails, extra: _dummyTrip),
       child: Container(
         height: 140.h,
         decoration: BoxDecoration(
@@ -130,4 +131,90 @@ class HomeFeaturedBannerWidget extends StatelessWidget {
       ),
     ).paddingSymmetric(horizontal: AppSizes.p16);
   }
+
+  static final _dummyTrip = TripModel(
+    id: 'dummy-1',
+    title: 'شرم الشيخ',
+    description: 'رحلة ممتعة إلى شرم الشيخ',
+    origin: 'القاهرة',
+    destination: 'شرم الشيخ',
+    price: 2950,
+    capacity: 30,
+    availableSeats: 20,
+    startDate: '2026-09-01',
+    endDate: '2026-09-04',
+    status: 'published',
+    createdBySystem: false,
+    isProtected: false,
+    coverImage: '',
+    gallery: [],
+    included: ['الإقامة', 'الإفطار', 'المواصلات'],
+    excluded: ['الغداء', 'الأنشطة الإضافية'],
+    cancelPolicy: '',
+    averageRating: 4.8,
+    reviewsCount: 3,
+    days: [
+      TripDayModel(
+        id: 'day-1',
+        dayNumber: 1,
+        title: '',
+        activities: [
+          const TripActivityModel(
+            id: 'act-1',
+            time: '08:00',
+            title: 'الوصول إلى شرم الشيخ',
+            description: 'الوصول للفندق والاستقبال من مندوبنا',
+            location: '',
+            image: '',
+          ),
+          const TripActivityModel(
+            id: 'act-2',
+            time: '10:00',
+            title: 'تسجيل الوصول في الفندق',
+            description: 'استلام الغرف وتجهيز الحقائب',
+            location: '',
+            image: '',
+          ),
+          const TripActivityModel(
+            id: 'act-3',
+            time: '12:00',
+            title: 'الغداء',
+            description: 'بوفيه مفتوح في مطعم الفندق الرئيسي',
+            location: '',
+            image: '',
+          ),
+          const TripActivityModel(
+            id: 'act-4',
+            time: '15:00',
+            title: 'جولة في خليج نعمة',
+            description: 'التمتع بمناظر الخليج والأسواق التجارية',
+            location: '',
+            image: '',
+          ),
+          const TripActivityModel(
+            id: 'act-5',
+            time: '20:00',
+            title: 'عشاء في المطعم',
+            description: 'عشاء رومانسي تحت ضوء القمر',
+            location: '',
+            image: '',
+          ),
+        ],
+      ),
+      const TripDayModel(
+        id: 'day-2',
+        dayNumber: 2,
+        title: '',
+        activities: [],
+      ),
+      const TripDayModel(
+        id: 'day-3',
+        dayNumber: 3,
+        title: '',
+        activities: [],
+      ),
+    ],
+    createdAt: '',
+    updatedAt: '',
+  );
 }

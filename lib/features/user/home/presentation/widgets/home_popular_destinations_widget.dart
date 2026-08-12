@@ -6,6 +6,7 @@ import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/extensions/extensions.dart';
 import 'package:rahala/core/router/route_names.dart';
+import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 
@@ -79,7 +80,34 @@ class DestinationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push(RouteNames.tripDetails),
+      onTap: () => context.push(
+            RouteNames.tripDetails,
+            extra: TripModel(
+              id: 'dummy-${title.hashCode}',
+              title: title,
+              description: 'رحلة ممتعة إلى $title',
+              origin: 'القاهرة',
+              destination: title,
+              price: double.tryParse(price.replaceAll(',', '')) ?? 0,
+              capacity: 30,
+              availableSeats: 20,
+              startDate: '2026-09-01',
+              endDate: '2026-09-04',
+              status: 'published',
+              createdBySystem: false,
+              isProtected: false,
+              coverImage: '',
+              gallery: [],
+              included: const ['الإقامة', 'الإفطار', 'المواصلات'],
+              excluded: const ['الغداء', 'الأنشطة الإضافية'],
+              cancelPolicy: '',
+              averageRating: 4.5,
+              reviewsCount: 0,
+              days: const [],
+              createdAt: '',
+              updatedAt: '',
+            ),
+          ),
       child: Container(
         width: 120.w,
         decoration: BoxDecoration(
