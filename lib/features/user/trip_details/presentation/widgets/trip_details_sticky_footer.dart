@@ -16,6 +16,17 @@ class TripDetailsStickyFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String buttonText = AppStrings.bookNow;
+    bool isAlreadyBooked = trip.isBooked;
+
+    if (isAlreadyBooked) {
+      if (trip.bookingStatus == 'approved') {
+        buttonText = 'تم تأكيد الحجز';
+      } else {
+        buttonText = 'حجزك قيد الانتظار';
+      }
+    }
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: AppSizes.p24,
@@ -35,8 +46,13 @@ class TripDetailsStickyFooter extends StatelessWidget {
         child: Row(
           children: [
             AppButton(
-              text: AppStrings.bookNow,
-              onPressed: () => context.push(RouteNames.bookingConfirmation),
+              text: buttonText,
+              onPressed: isAlreadyBooked
+                  ? null
+                  : () => context.push(
+                      RouteNames.bookingConfirmation,
+                      extra: trip,
+                    ),
             ).expanded(),
             AppSizes.p16.horizontalSpace,
             Container(
@@ -45,6 +61,7 @@ class TripDetailsStickyFooter extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.border),
                 borderRadius: BorderRadius.circular(AppSizes.r12),
+                color: Colors.transparent,
               ),
               child: Icon(Icons.favorite_border, color: AppColors.textPrimary),
             ),

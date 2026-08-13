@@ -48,10 +48,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
       body: CustomScrollView(
         controller: _scrollController,
         slivers: [
-          TripDetailsSliverAppBar(
-            trip: widget.trip,
-            isScrolled: _isScrolled,
-          ),
+          TripDetailsSliverAppBar(trip: widget.trip, isScrolled: _isScrolled),
           SliverToBoxAdapter(
             child: TripDetailsBody(
               trip: widget.trip,

@@ -20,25 +20,31 @@ class TripDetailsHeaderInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  trip.title,
-                  style: AppTextStyles.displaySmall.copyWith(
-                    color: AppColors.primaryDark,
-                    fontWeight: FontWeight.bold,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    trip.title,
+                    style: AppTextStyles.displaySmall.copyWith(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                AppSizes.p8.verticalSpace,
-                Text(
-                  trip.durationText,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
+                  AppSizes.p8.verticalSpace,
+                  if (trip.durationText.isNotEmpty)
+                    Text(
+                      trip.durationText,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                ],
+              ),
             ),
+            AppSizes.p12.horizontalSpace,
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
               decoration: BoxDecoration(

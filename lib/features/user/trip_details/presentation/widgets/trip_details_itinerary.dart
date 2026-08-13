@@ -58,12 +58,13 @@ class _TripDetailsItineraryState extends State<TripDetailsItinerary> {
                 ? day.title
                 : '${AppStrings.tripDetailsDay} ${_dayLabel(day.dayNumber)}',
             isExpanded: isExpanded,
-            onTap: () =>
-                setState(() => _expandedStates[index] = !isExpanded),
+            onTap: () => setState(() => _expandedStates[index] = !isExpanded),
             child: day.activities.isNotEmpty
                 ? Padding(
                     padding: EdgeInsets.only(
-                        top: AppSizes.p24, right: AppSizes.p12),
+                      top: AppSizes.p24,
+                      right: AppSizes.p12,
+                    ),
                     child: IntrinsicHeight(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,8 +80,7 @@ class _TripDetailsItineraryState extends State<TripDetailsItinerary> {
                                 day.activities.length,
                                 (actIndex) => TripDetailsTimelineEvent(
                                   activity: day.activities[actIndex],
-                                  isLast:
-                                      actIndex == day.activities.length - 1,
+                                  isLast: actIndex == day.activities.length - 1,
                                 ),
                               ),
                             ),

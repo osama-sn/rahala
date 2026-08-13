@@ -83,6 +83,16 @@ class AppStrings {
   static String get homeNavFavorites => 'home.navFavorites'.tr();
   static String get homeNavMore => 'home.navMore'.tr();
 
+  // Explore
+  static String get exploreTitle => 'استكشاف الرحلات';
+  static String get exploreDestination => 'جهة الوصول';
+  static String get exploreOrigin => 'مكان الانطلاق';
+  static String get exploreCategory => 'الفئة';
+  static String get exploreClearFilters => 'إلغاء الفلاتر';
+  static String get exploreNoResults => 'لا توجد رحلات مطابقة';
+  static String get exploreNoResultsSubtitle =>
+      'جرب تغيير فلاتر البحث للعثور على رحلات مناسبة';
+
   // Bookings
   static String get bookingsTitle => 'bookings.title'.tr();
   static String get bookingsFilterAll => 'bookings.filterAll'.tr();

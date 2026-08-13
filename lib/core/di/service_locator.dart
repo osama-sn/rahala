@@ -19,6 +19,12 @@ import 'package:rahala/features/user/auth/presentation/cubit/auth_cubit.dart';
 import 'package:rahala/features/admin/trips/data/repositories/admin_trips_repository.dart';
 import 'package:rahala/features/admin/trips/presentation/cubit/admin_trips_cubit.dart';
 import 'package:rahala/features/admin/trips/data/datasource/admin_trips_remote_data_source.dart';
+import 'package:rahala/features/user/explore_trips/data/datasources/explore_trips_remote_data_source.dart';
+import 'package:rahala/features/user/explore_trips/data/repositories/explore_trips_repository.dart';
+import 'package:rahala/features/user/explore_trips/presentation/cubit/explore_cubit.dart';
+import 'package:rahala/features/user/home/data/datasource/home_remote_data_source.dart';
+import 'package:rahala/features/user/home/data/repositories/home_repository.dart';
+import 'package:rahala/features/user/home/presentation/cubit/home_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 Future<void> initServiceLocator() async {
@@ -45,7 +51,12 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<AdminBookingRemoteDataSource>(
     () => AdminBookingRemoteDataSourceImpl(dioClient: getIt()),
   );
-  // repositories
+  getIt.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(getIt()),
+  );
+  getIt.registerLazySingleton<ExploreTripsRemoteDataSource>(
+    () => ExploreTripsRemoteDataSourceImpl(getIt()),
+  ); // repositories
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepository(authRemoteDataSource: getIt()),
   );
@@ -65,6 +76,10 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<AdminBookingRepository>(
     () => AdminBookingRepository(getIt()),
   );
+  getIt.registerLazySingleton<HomeRepository>(() => HomeRepository(getIt()));
+  getIt.registerLazySingleton<ExploreTripsRepository>(
+    () => ExploreTripsRepository(getIt()),
+  );
   // cubits
   getIt.registerFactory<AuthCubit>(
     () => AuthCubit(authRepository: getIt(), googleAuthService: getIt()),
@@ -80,4 +95,6 @@ Future<void> initServiceLocator() async {
   getIt.registerFactory<AdminBookingCubit>(
     () => AdminBookingCubit(repo: getIt()),
   );
+  getIt.registerFactory<HomeCubit>(() => HomeCubit(getIt()));
+  getIt.registerFactory<ExploreCubit>(() => ExploreCubit(getIt()));
 }

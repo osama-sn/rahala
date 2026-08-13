@@ -17,13 +17,13 @@ class TripDetailsTabs extends StatelessWidget {
   });
 
   static List<String> get defaultTabs => [
-        AppStrings.tripDetailsReviews,
-        AppStrings.tripDetailsGallery,
-        AppStrings.tripDetailsExcluded,
-        AppStrings.tripDetailsIncluded,
-        AppStrings.tripDetailsOverview,
-        AppStrings.tripDetailsItinerary,
-      ];
+    AppStrings.tripDetailsItinerary,
+    AppStrings.tripDetailsOverview,
+    AppStrings.tripDetailsIncluded,
+    AppStrings.tripDetailsExcluded,
+    AppStrings.tripDetailsGallery,
+    AppStrings.tripDetailsReviews,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +60,7 @@ class TripDetailsTabs extends StatelessWidget {
               ),
             ),
           );
-        }).reversed.toList(),
+        }),
       ),
     );
   }

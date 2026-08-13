@@ -134,6 +134,9 @@ class TripModel {
   final String status;
   final bool createdBySystem;
   final bool isProtected;
+  final bool isFavorite;
+  final bool isBooked;
+  final String? bookingStatus;
   final String coverImage;
   final List<String> gallery;
   final List<String> included;
@@ -160,6 +163,9 @@ class TripModel {
     required this.status,
     required this.createdBySystem,
     required this.isProtected,
+    this.isFavorite = false,
+    this.isBooked = false,
+    this.bookingStatus,
     required this.coverImage,
     required this.gallery,
     required this.included,
@@ -171,11 +177,23 @@ class TripModel {
     required this.createdAt,
     required this.updatedAt,
   });
-  List<String> get galleryWithBaseUrl =>
-      gallery.map((e) => 'https://rahala.duckdns.org$e').toList();
+
   factory TripModel.fromJson(Map<String, dynamic> json) {
+    final cat = json['category'];
+    final categoryModel = cat is Map
+        ? TripCategoryModel.fromJson(Map<String, dynamic>.from(cat))
+        : (cat is String
+              ? TripCategoryModel(
+                  id: cat,
+                  nameEn: '',
+                  nameAr: '',
+                  slug: '',
+                  image: '',
+                )
+              : null);
+
     return TripModel(
-      id: (json['_id'] ?? json['id']) as String? ?? '',
+      id: json['_id'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       origin: json['origin'] as String? ?? '',
@@ -185,24 +203,13 @@ class TripModel {
       availableSeats: (json['availableSeats'] as num?)?.toInt() ?? 0,
       startDate: json['startDate'] as String? ?? '',
       endDate: json['endDate'] as String? ?? '',
-      category: json['category'] is Map<String, dynamic>
-          ? TripCategoryModel.fromJson(json['category'] as Map<String, dynamic>)
-          : (json['category'] is Map
-                ? TripCategoryModel.fromJson(
-                    Map<String, dynamic>.from(json['category'] as Map),
-                  )
-                : (json['category'] is String
-                      ? TripCategoryModel(
-                          id: json['category'] as String,
-                          nameEn: '',
-                          nameAr: '',
-                          slug: '',
-                          image: '',
-                        )
-                      : null)),
+      category: categoryModel,
       status: json['status'] as String? ?? 'published',
       createdBySystem: json['createdBySystem'] as bool? ?? false,
       isProtected: json['isProtected'] as bool? ?? false,
+      isFavorite: json['isFavorite'] as bool? ?? false,
+      isBooked: json['isBooked'] as bool? ?? false,
+      bookingStatus: json['bookingStatus'] as String?,
       coverImage: json['coverImage'] as String? ?? '',
       gallery:
           (json['gallery'] as List<dynamic>?)
@@ -224,14 +231,8 @@ class TripModel {
       reviewsCount: (json['reviewsCount'] as num?)?.toInt() ?? 0,
       days:
           (json['days'] as List<dynamic>?)
-              ?.map(
-                (e) => e is Map<String, dynamic>
-                    ? TripDayModel.fromJson(e)
-                    : (e is Map
-                          ? TripDayModel.fromJson(Map<String, dynamic>.from(e))
-                          : null),
-              )
-              .whereType<TripDayModel>()
+              ?.whereType<Map>()
+              .map((e) => TripDayModel.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           [],
       createdAt: json['createdAt'] as String? ?? '',
@@ -255,6 +256,9 @@ class TripModel {
       'status': status,
       'createdBySystem': createdBySystem,
       'isProtected': isProtected,
+      'isFavorite': isFavorite,
+      'isBooked': isBooked,
+      'bookingStatus': bookingStatus,
       'coverImage': coverImage,
       'gallery': gallery,
       'included': included,
@@ -266,6 +270,66 @@ class TripModel {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
+  }
+
+  TripModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? origin,
+    String? destination,
+    double? price,
+    int? capacity,
+    int? availableSeats,
+    String? startDate,
+    String? endDate,
+    TripCategoryModel? category,
+    String? status,
+    bool? createdBySystem,
+    bool? isProtected,
+    bool? isFavorite,
+    bool? isBooked,
+    String? bookingStatus,
+    String? coverImage,
+    List<String>? gallery,
+    List<String>? included,
+    List<String>? excluded,
+    String? cancelPolicy,
+    double? averageRating,
+    int? reviewsCount,
+    List<TripDayModel>? days,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return TripModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      origin: origin ?? this.origin,
+      destination: destination ?? this.destination,
+      price: price ?? this.price,
+      capacity: capacity ?? this.capacity,
+      availableSeats: availableSeats ?? this.availableSeats,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      category: category ?? this.category,
+      status: status ?? this.status,
+      createdBySystem: createdBySystem ?? this.createdBySystem,
+      isProtected: isProtected ?? this.isProtected,
+      isFavorite: isFavorite ?? this.isFavorite,
+      isBooked: isBooked ?? this.isBooked,
+      bookingStatus: bookingStatus ?? this.bookingStatus,
+      coverImage: coverImage ?? this.coverImage,
+      gallery: gallery ?? this.gallery,
+      included: included ?? this.included,
+      excluded: excluded ?? this.excluded,
+      cancelPolicy: cancelPolicy ?? this.cancelPolicy,
+      averageRating: averageRating ?? this.averageRating,
+      reviewsCount: reviewsCount ?? this.reviewsCount,
+      days: days ?? this.days,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 
   String get durationText {
@@ -288,5 +352,14 @@ class TripModel {
       return coverImage;
     }
     return 'https://rahala.duckdns.org$coverImage';
+  }
+
+  List<String> get fullGalleryUrls {
+    return gallery.map((img) {
+      if (img.startsWith('http://') || img.startsWith('https://')) {
+        return img;
+      }
+      return 'https://rahala.duckdns.org$img';
+    }).toList();
   }
 }

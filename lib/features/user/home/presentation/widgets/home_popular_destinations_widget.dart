@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rahala/core/constants/app_assets.dart';
@@ -6,15 +7,34 @@ import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/extensions/extensions.dart';
 import 'package:rahala/core/router/route_names.dart';
+import 'package:rahala/core/shared/widgets/app_network_image.dart';
 import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
+import 'package:rahala/features/user/home/presentation/cubit/home_cubit.dart';
+import 'package:rahala/features/user/home/presentation/cubit/home_states.dart';
 
 class HomePopularDestinationsWidget extends StatelessWidget {
   const HomePopularDestinationsWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        if (state is HomeLoading) {
+          return _buildShimmer();
+        }
+
+        if (state is HomeLoaded && state.trips.isNotEmpty) {
+          return _buildContent(context, state.trips);
+        }
+
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, List<TripModel> trips) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -25,10 +45,13 @@ class HomePopularDestinationsWidget extends StatelessWidget {
               AppStrings.homePopularDestinations,
               style: AppTextStyles.titleMedium,
             ),
-            Text(
-              AppStrings.viewAll,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.primary,
+            GestureDetector(
+              onTap: () => {context.push(RouteNames.explore)},
+              child: Text(
+                AppStrings.viewAll,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ],
@@ -36,28 +59,51 @@ class HomePopularDestinationsWidget extends StatelessWidget {
         AppSizes.p12.verticalSpace,
         SizedBox(
           height: 160.h,
-          child: ListView(
+          child: ListView.separated(
             padding: EdgeInsets.symmetric(horizontal: AppSizes.p16),
             scrollDirection: Axis.horizontal,
-            children: [
-              const DestinationCard(
-                image: AppAssets.destHurghada,
-                title: 'الغردقة',
-                price: '2,450',
-              ),
-              AppSizes.p12.horizontalSpace,
-              const DestinationCard(
-                image: AppAssets.destDahab,
-                title: 'دهب',
-                price: '1,850',
-              ),
-              AppSizes.p12.horizontalSpace,
-              const DestinationCard(
-                image: AppAssets.destLuxor,
-                title: 'الأقصر وأسوان',
-                price: '3,750',
-              ),
-            ],
+            itemCount: trips.length,
+            separatorBuilder: (context, index) => AppSizes.p12.horizontalSpace,
+            itemBuilder: (context, index) {
+              final trip = trips[index];
+              return _DestinationCard(trip: trip);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmer() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppStrings.homePopularDestinations,
+              style: AppTextStyles.titleMedium,
+            ),
+          ],
+        ).paddingSymmetric(horizontal: AppSizes.p16),
+        AppSizes.p12.verticalSpace,
+        SizedBox(
+          height: 160.h,
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: AppSizes.p16),
+            scrollDirection: Axis.horizontal,
+            itemCount: 3,
+            separatorBuilder: (context, index) => AppSizes.p12.horizontalSpace,
+            itemBuilder: (context, index) {
+              return Container(
+                width: 120.w,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(AppSizes.r16),
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -65,49 +111,15 @@ class HomePopularDestinationsWidget extends StatelessWidget {
   }
 }
 
-class DestinationCard extends StatelessWidget {
-  final String image;
-  final String title;
-  final String price;
+class _DestinationCard extends StatelessWidget {
+  final TripModel trip;
 
-  const DestinationCard({
-    super.key,
-    required this.image,
-    required this.title,
-    required this.price,
-  });
+  const _DestinationCard({required this.trip});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push(
-            RouteNames.tripDetails,
-            extra: TripModel(
-              id: 'dummy-${title.hashCode}',
-              title: title,
-              description: 'رحلة ممتعة إلى $title',
-              origin: 'القاهرة',
-              destination: title,
-              price: double.tryParse(price.replaceAll(',', '')) ?? 0,
-              capacity: 30,
-              availableSeats: 20,
-              startDate: '2026-09-01',
-              endDate: '2026-09-04',
-              status: 'published',
-              createdBySystem: false,
-              isProtected: false,
-              coverImage: '',
-              gallery: [],
-              included: const ['الإقامة', 'الإفطار', 'المواصلات'],
-              excluded: const ['الغداء', 'الأنشطة الإضافية'],
-              cancelPolicy: '',
-              averageRating: 4.5,
-              reviewsCount: 0,
-              days: const [],
-              createdAt: '',
-              updatedAt: '',
-            ),
-          ),
+      onTap: () => context.push(RouteNames.tripDetails, extra: trip),
       child: Container(
         width: 120.w,
         decoration: BoxDecoration(
@@ -125,22 +137,29 @@ class DestinationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
+            Expanded(
+              child: ClipRRect(
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(AppSizes.r16),
                 ),
-                image: DecorationImage(
-                  image: AssetImage(image),
-                  fit: BoxFit.cover,
-                ),
+                child: trip.fullCoverImageUrl.isNotEmpty
+                    ? AppNetworkImage(
+                        imageUrl: trip.fullCoverImageUrl,
+                        width: 120.w,
+                      )
+                    : Container(
+                        color: AppColors.divider,
+                        child: const Center(
+                          child: Icon(Icons.image, color: AppColors.textHint),
+                        ),
+                      ),
               ),
-            ).expanded(),
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  trip.destination,
                   style: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -151,18 +170,41 @@ class DestinationCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '$price ج.م',
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        '${trip.price.toStringAsFixed(0)} ${AppStrings.currencyEGP}',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Icon(
-                      Icons.favorite_border,
-                      size: 14.sp,
-                      color: AppColors.textHint,
-                    ),
+                    if (trip.averageRating > 0)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star,
+                            size: 12.sp,
+                            color: AppColors.secondary,
+                          ),
+                          2.horizontalSpace,
+                          Text(
+                            trip.averageRating.toStringAsFixed(1),
+                            style: AppTextStyles.labelSmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Icon(
+                        Icons.favorite_border,
+                        size: 14.sp,
+                        color: AppColors.textHint,
+                      ),
                   ],
                 ),
               ],

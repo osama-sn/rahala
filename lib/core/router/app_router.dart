@@ -11,6 +11,7 @@ import 'package:rahala/features/user/auth/presentation/pages/login_page.dart';
 import 'package:rahala/features/user/auth/presentation/pages/register_page.dart';
 import 'package:rahala/features/user/bookings/presentation/pages/booking_confirmation_page.dart';
 import 'package:rahala/features/user/bookings/presentation/pages/booking_details_page.dart';
+import 'package:rahala/features/user/explore_trips/presentation/pages/explore_trips_page.dart';
 import 'package:rahala/features/user/home/presentation/pages/home_page.dart';
 import 'package:rahala/features/user/trip_details/presentation/pages/trip_details_page.dart';
 import 'package:rahala/features/user/not_found/presentation/pages/not_found_page.dart';
@@ -65,6 +66,13 @@ class AppRouter {
       GoRoute(
         path: RouteNames.profile,
         builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: RouteNames.explore,
+        builder: (context, state) {
+          final params = state.extra as ExplorePageParams?;
+          return ExplorePage(params: params);
+        },
       ),
       GoRoute(
         path: RouteNames.settings,
