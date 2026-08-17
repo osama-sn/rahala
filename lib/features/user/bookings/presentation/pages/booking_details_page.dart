@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:rahala/core/constants/app_assets.dart';
-import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/constants/app_colors.dart';
+import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/extensions/extensions.dart';
+import 'package:rahala/core/shared/widgets/app_button.dart';
+import 'package:rahala/core/shared/widgets/app_network_image.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
-import 'package:rahala/core/shared/widgets/app_button.dart';
+import 'package:rahala/features/user/bookings/data/models/user_booking_model.dart';
 
 class BookingDetailsPage extends StatelessWidget {
-  const BookingDetailsPage({super.key});
+  final UserBookingModel? booking;
+
+  const BookingDetailsPage({super.key, this.booking});
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +63,11 @@ class BookingDetailsPage extends StatelessWidget {
   }
 
   Widget _buildDestinationCard() {
+    final title = booking?.title ?? 'شرم الشيخ';
+    final duration = booking?.duration ?? '3 أيام / ليلتان';
+    final date = booking?.date ?? '20 - 22 يونيو 2025';
+    final image = booking?.image ?? AppAssets.homeFeatured;
+
     return Container(
       padding: EdgeInsets.all(AppSizes.p16),
       decoration: BoxDecoration(
@@ -73,7 +81,7 @@ class BookingDetailsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'شرم الشيخ',
+                title,
                 style: AppTextStyles.titleMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
@@ -88,7 +96,7 @@ class BookingDetailsPage extends StatelessWidget {
                   ),
                   AppSizes.p4.horizontalSpace,
                   Text(
-                    '3 أيام / ليلتان',
+                    duration,
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -97,7 +105,7 @@ class BookingDetailsPage extends StatelessWidget {
               ),
               AppSizes.p4.verticalSpace,
               Text(
-                '20 - 22 يونيو 2025',
+                date,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -107,12 +115,29 @@ class BookingDetailsPage extends StatelessWidget {
           AppSizes.p16.horizontalSpace,
           ClipRRect(
             borderRadius: BorderRadius.circular(AppSizes.r8),
-            child: Image.asset(
-              AppAssets.homeFeatured,
-              width: 96.w,
-              height: 96.w,
-              fit: BoxFit.cover,
-            ),
+            child: image.startsWith('http')
+                ? AppNetworkImage(
+                    imageUrl: image,
+                    width: 96.w,
+                    height: 96.w,
+                    fit: BoxFit.cover,
+                  )
+                : (image.isNotEmpty
+                      ? Image.asset(
+                          image,
+                          width: 96.w,
+                          height: 96.w,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          width: 96.w,
+                          height: 96.w,
+                          color: AppColors.divider,
+                          child: const Icon(
+                            Icons.image,
+                            color: AppColors.textHint,
+                          ),
+                        )),
           ),
         ],
       ),
@@ -120,6 +145,16 @@ class BookingDetailsPage extends StatelessWidget {
   }
 
   Widget _buildBookingDataCard() {
+    final bookingId = (booking != null && booking!.id.isNotEmpty)
+        ? booking!.id
+        : '#TRP-250620';
+    final bookingDate = (booking != null && booking!.createdAt.isNotEmpty)
+        ? booking!.date
+        : '15 يونيو 2025 - 10:30 ص';
+    final priceText = booking != null
+        ? '${booking!.price} ${AppStrings.currencyEGP}'
+        : '6,000 ج.م';
+
     return Container(
       padding: EdgeInsets.all(AppSizes.p24),
       decoration: BoxDecoration(
@@ -139,20 +174,19 @@ class BookingDetailsPage extends StatelessWidget {
           AppSizes.p24.verticalSpace,
           _buildInfoRow(
             AppStrings.bookingDetailsBookingNumber,
-            '#TRP-250620',
+            bookingId,
             isBold: true,
           ),
           AppSizes.p16.verticalSpace,
-          _buildInfoRow(
-            AppStrings.bookingDetailsBookingDate,
-            '15 يونيو 2025 - 10:30 ص',
-          ),
+          _buildInfoRow(AppStrings.bookingDetailsBookingDate, bookingDate),
           AppSizes.p16.verticalSpace,
           _buildStatusRow(),
           AppSizes.p16.verticalSpace,
           _buildInfoRow(
             AppStrings.bookingDetailsIndividuals,
-            '2 ${AppStrings.bookingDetailsAdults}',
+            booking != null
+                ? '${booking!.individualsCount} ${AppStrings.bookingDetailsAdults}'
+                : '2 ${AppStrings.bookingDetailsAdults}',
           ),
           AppSizes.p16.verticalSpace,
           _buildPaymentMethodRow(),
@@ -169,7 +203,7 @@ class BookingDetailsPage extends StatelessWidget {
                 ),
               ),
               Text(
-                '6,000 ج.م',
+                priceText,
                 style: AppTextStyles.titleMedium.copyWith(
                   color: AppColors.primaryDark,
                 ),
@@ -182,6 +216,10 @@ class BookingDetailsPage extends StatelessWidget {
   }
 
   Widget _buildStatusRow() {
+    final statusText = booking?.status ?? AppStrings.bookingDetailsConfirmed;
+    final statusBg = booking?.statusBg ?? const Color(0xFFFFF3E0);
+    final statusColor = booking?.statusColor ?? const Color(0xFFE65100);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -197,13 +235,13 @@ class BookingDetailsPage extends StatelessWidget {
             vertical: AppSizes.p4,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF3E0),
+            color: statusBg,
             borderRadius: BorderRadius.circular(AppSizes.r12),
           ),
           child: Text(
-            AppStrings.bookingDetailsConfirmed,
+            statusText,
             style: AppTextStyles.labelMedium.copyWith(
-              color: const Color(0xFFE65100),
+              color: statusColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -213,6 +251,8 @@ class BookingDetailsPage extends StatelessWidget {
   }
 
   Widget _buildPaymentMethodRow() {
+    final method = booking?.paymentMethod ?? AppStrings.bookingDetailsBankCard;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -227,7 +267,7 @@ class BookingDetailsPage extends StatelessWidget {
             Icon(Icons.credit_card, size: 16.sp, color: AppColors.textPrimary),
             AppSizes.p8.horizontalSpace,
             Text(
-              AppStrings.bookingDetailsBankCard,
+              method,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textPrimary,
               ),
@@ -239,6 +279,17 @@ class BookingDetailsPage extends StatelessWidget {
   }
 
   Widget _buildTripDataCard() {
+    final snapshot = booking?.tripSnapshot;
+    final destination = snapshot?.destination.isNotEmpty == true
+        ? snapshot!.destination
+        : (booking?.title ?? 'شرم الشيخ');
+    final dates = snapshot?.startDate.isNotEmpty == true
+        ? '${snapshot!.startDate.split('T').first} - ${snapshot.endDate.split('T').first}'
+        : '20 - 22 يونيو 2025';
+    final duration = booking?.duration ?? '3 أيام / ليلتان';
+    final meetingPoint = booking?.meetingPoint ?? 'ميدان التحرير - القاهرة';
+    final meetingTime = booking?.meetingTime ?? '19 يونيو 2025 - 10:00 م';
+
     return Container(
       padding: EdgeInsets.all(AppSizes.p24),
       decoration: BoxDecoration(
@@ -258,31 +309,31 @@ class BookingDetailsPage extends StatelessWidget {
           AppSizes.p24.verticalSpace,
           _buildTripDataRow(
             AppStrings.bookingDetailsDestination,
-            'شرم الشيخ',
+            destination,
             Icons.location_on_outlined,
           ),
           AppSizes.p16.verticalSpace,
           _buildTripDataRow(
             AppStrings.bookingDetailsTripDates,
-            '20 - 22 يونيو 2025',
+            dates,
             Icons.calendar_today_outlined,
           ),
           AppSizes.p16.verticalSpace,
           _buildTripDataRow(
             AppStrings.bookingDetailsDuration,
-            '3 أيام / ليلتان',
+            duration,
             Icons.access_time,
           ),
           AppSizes.p16.verticalSpace,
           _buildTripDataRow(
             AppStrings.bookingDetailsMeetingPoint,
-            'ميدان التحرير - القاهرة',
+            meetingPoint,
             Icons.meeting_room_outlined,
           ),
           AppSizes.p16.verticalSpace,
           _buildTripDataRow(
             AppStrings.bookingDetailsMeetingTime,
-            '19 يونيو 2025 - 10:00 م',
+            meetingTime,
             Icons.alarm,
           ),
         ],

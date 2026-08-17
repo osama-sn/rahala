@@ -19,9 +19,15 @@ import 'package:rahala/features/user/auth/presentation/cubit/auth_cubit.dart';
 import 'package:rahala/features/admin/trips/data/repositories/admin_trips_repository.dart';
 import 'package:rahala/features/admin/trips/presentation/cubit/admin_trips_cubit.dart';
 import 'package:rahala/features/admin/trips/data/datasource/admin_trips_remote_data_source.dart';
+import 'package:rahala/features/user/bookings/data/datasources/booking_remote_data_source.dart';
+import 'package:rahala/features/user/bookings/data/repositories/booking_repository.dart';
+import 'package:rahala/features/user/bookings/presentation/cubit/booking_cubit.dart';
 import 'package:rahala/features/user/explore_trips/data/datasources/explore_trips_remote_data_source.dart';
 import 'package:rahala/features/user/explore_trips/data/repositories/explore_trips_repository.dart';
 import 'package:rahala/features/user/explore_trips/presentation/cubit/explore_cubit.dart';
+import 'package:rahala/features/user/favorites/data/datasources/favorite_remote_data_source.dart';
+import 'package:rahala/features/user/favorites/data/repositories/favorite_repository.dart';
+import 'package:rahala/features/user/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:rahala/features/user/home/data/datasource/home_remote_data_source.dart';
 import 'package:rahala/features/user/home/data/repositories/home_repository.dart';
 import 'package:rahala/features/user/home/presentation/cubit/home_cubit.dart';
@@ -56,7 +62,14 @@ Future<void> initServiceLocator() async {
   );
   getIt.registerLazySingleton<ExploreTripsRemoteDataSource>(
     () => ExploreTripsRemoteDataSourceImpl(getIt()),
-  ); // repositories
+  );
+  getIt.registerLazySingleton<FavoriteRemoteDataSource>(
+    () => FavoriteRemoteDataSourceImpl(dioClient: getIt()),
+  );
+  getIt.registerLazySingleton<UserBookingsRemoteDataSource>(
+    () => UserBookingsRemoteDataSourceImpl(getIt()),
+  );
+  // repositories
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepository(authRemoteDataSource: getIt()),
   );
@@ -80,6 +93,12 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<ExploreTripsRepository>(
     () => ExploreTripsRepository(getIt()),
   );
+  getIt.registerLazySingleton<FavoriteRepository>(
+    () => FavoriteRepository(favoriteRemoteDataSource: getIt()),
+  );
+  getIt.registerLazySingleton<UserBookingsRepository>(
+    () => UserBookingsRepository(getIt()),
+  );
   // cubits
   getIt.registerFactory<AuthCubit>(
     () => AuthCubit(authRepository: getIt(), googleAuthService: getIt()),
@@ -97,4 +116,8 @@ Future<void> initServiceLocator() async {
   );
   getIt.registerFactory<HomeCubit>(() => HomeCubit(getIt()));
   getIt.registerFactory<ExploreCubit>(() => ExploreCubit(getIt()));
+  getIt.registerFactory<FavoritesCubit>(
+    () => FavoritesCubit(favoriteRepository: getIt()),
+  );
+  getIt.registerFactory<UserBookingsCubit>(() => UserBookingsCubit(getIt()));
 }

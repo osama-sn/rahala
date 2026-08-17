@@ -1,30 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rahala/core/di/service_locator.dart';
 import 'package:rahala/core/router/route_names.dart';
 
 import 'package:rahala/core/constants/app_assets.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/extensions/extensions.dart';
+import 'package:rahala/core/shared/widgets/app_network_image.dart';
+import 'package:rahala/core/shared/widgets/app_snackbar.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/core/theme/app_text_styles.dart';
 import 'package:rahala/core/shared/widgets/app_button.dart';
+import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
+import 'package:rahala/features/user/bookings/presentation/cubit/booking_cubit.dart';
+import 'package:rahala/features/user/bookings/presentation/cubit/booking_states.dart';
 import 'package:rahala/features/user/bookings/presentation/widgets/booking_price_summary_card.dart';
 
-class BookingConfirmationPage extends StatefulWidget {
-  const BookingConfirmationPage({super.key});
+class BookingConfirmationPage extends StatelessWidget {
+  final TripModel? trip;
+
+  const BookingConfirmationPage({super.key, this.trip});
 
   @override
-  State<BookingConfirmationPage> createState() =>
-      _BookingConfirmationPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider<UserBookingsCubit>(
+      create: (_) => getIt<UserBookingsCubit>(),
+      child: _BookingConfirmationContent(trip: trip!),
+    );
+  }
 }
 
-class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
-  int _numberOfIndividuals = 2;
-  final double _pricePerPerson = 2950;
+class _BookingConfirmationContent extends StatefulWidget {
+  final TripModel trip;
+  const _BookingConfirmationContent({super.key, required this.trip});
+
+  @override
+  State<_BookingConfirmationContent> createState() =>
+      _BookingConfirmationContentState();
+}
+
+class _BookingConfirmationContentState
+    extends State<_BookingConfirmationContent> {
+  int _numberOfIndividuals = 1;
+  double get _pricePerPerson => widget.trip.price;
   final double _discount = 0;
-  final double _serviceFee = 100;
+  final double _serviceFee = 0;
+  final _notesController = TextEditingController();
 
   double get _tripCost => _numberOfIndividuals * _pricePerPerson;
   double get _finalPrice => _tripCost - _discount + _serviceFee;
@@ -41,6 +65,14 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
         _numberOfIndividuals--;
       });
     }
+  }
+
+  void _submitBooking() {
+    context.read<UserBookingsCubit>().createBooking(
+      tripId: widget.trip.id,
+      numberOfSeats: _numberOfIndividuals,
+      notes: _notesController.text.trim(),
+    );
   }
 
   @override
@@ -62,34 +94,60 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(AppSizes.p24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDestinationCard(),
-            AppSizes.p32.verticalSpace,
-            _buildIndividualsSelector(),
-            AppSizes.p32.verticalSpace,
-            _buildSpecialNotes(),
-            AppSizes.p32.verticalSpace,
-            BookingPriceSummaryCard(
-              numberOfIndividuals: _numberOfIndividuals,
-              tripCost: _tripCost,
-              discount: _discount,
-              serviceFee: _serviceFee,
-              finalPrice: _finalPrice,
-            ),
-            AppSizes.p32.verticalSpace,
-            _buildActionSection(),
-            AppSizes.p32.verticalSpace,
-          ],
+      body: BlocListener<UserBookingsCubit, UserBookingsState>(
+        listener: (context, state) {
+          if (state is BookingCreationSuccess) {
+            AppSnackbar.showSuccess(
+              message: "تم إنشاء الحجز بنجاح",
+              context: context,
+            );
+            context.pushReplacement(
+              RouteNames.bookingDetails,
+              extra: state.booking,
+            );
+          } else if (state is BookingCreationFailure) {
+            AppSnackbar.showError(message: state.message, context: context);
+          }
+        },
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(AppSizes.p24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDestinationCard(),
+              AppSizes.p32.verticalSpace,
+              _buildIndividualsSelector(),
+              AppSizes.p32.verticalSpace,
+              _buildSpecialNotes(),
+              AppSizes.p32.verticalSpace,
+              BookingPriceSummaryCard(
+                numberOfIndividuals: _numberOfIndividuals,
+                tripCost: _tripCost,
+                discount: _discount,
+                serviceFee: _serviceFee,
+                finalPrice: _finalPrice,
+              ),
+              AppSizes.p32.verticalSpace,
+              _buildActionSection(),
+              AppSizes.p32.verticalSpace,
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildDestinationCard() {
+    final title = widget.trip?.title ?? 'شرم الشيخ';
+    final duration =
+        (widget.trip != null && widget.trip!.durationText.isNotEmpty)
+        ? widget.trip!.durationText
+        : 'يومان / ليلة واحدة';
+    final date = (widget.trip != null && widget.trip!.startDate.isNotEmpty)
+        ? widget.trip!.startDate.split('T').first
+        : '20 - 22 يونيو 2025';
+    final imageUrl = widget.trip?.fullCoverImageUrl ?? '';
+
     return Container(
       padding: EdgeInsets.all(AppSizes.p16),
       decoration: BoxDecoration(
@@ -103,7 +161,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'شرم الشيخ',
+                title,
                 style: AppTextStyles.titleMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
@@ -118,7 +176,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
                   ),
                   AppSizes.p4.horizontalSpace,
                   Text(
-                    '20 - 22 يونيو 2025',
+                    date,
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -127,7 +185,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
               ),
               AppSizes.p4.verticalSpace,
               Text(
-                'يومان / ليلة واحدة',
+                duration,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -137,12 +195,19 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
           AppSizes.p16.horizontalSpace,
           ClipRRect(
             borderRadius: BorderRadius.circular(AppSizes.r8),
-            child: Image.asset(
-              AppAssets.homeFeatured,
-              width: 96.w,
-              height: 96.w,
-              fit: BoxFit.cover,
-            ),
+            child: imageUrl.isNotEmpty
+                ? AppNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 96.w,
+                    height: 96.w,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    AppAssets.homeFeatured,
+                    width: 96.w,
+                    height: 96.w,
+                    fit: BoxFit.cover,
+                  ),
           ),
         ],
       ),
@@ -180,7 +245,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
                     ),
                   ),
                   Text(
-                    '2,950 ج.م / ${AppStrings.bookingConfirmationPerPerson}',
+                    '$_pricePerPerson ج.م / ${AppStrings.bookingConfirmationPerPerson}',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -224,7 +289,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
         ),
         AppSizes.p8.verticalSpace,
         TextField(
+          controller: _notesController,
           maxLines: 4,
+
           decoration: InputDecoration(
             hintText: AppStrings.bookingConfirmationSpecialNotesHint,
             hintStyle: AppTextStyles.bodyMedium.copyWith(
@@ -251,51 +318,57 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage> {
   }
 
   Widget _buildActionSection() {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: AppButton(
-            text: AppStrings.bookingConfirmationConfirmBooking,
-            onPressed: () {
-              context.pushReplacement(RouteNames.bookingDetails);
-            },
-          ),
-        ),
-        AppSizes.p16.verticalSpace,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return BlocBuilder<UserBookingsCubit, UserBookingsState>(
+      builder: (context, state) {
+        final isSubmitting = state is BookingCreationSubmitting;
+
+        return Column(
           children: [
-            Icon(
-              Icons.shield_outlined,
-              color: AppColors.textSecondary,
-              size: 16.sp,
-            ),
-            AppSizes.p8.horizontalSpace,
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                children: [
-                  TextSpan(
-                    text:
-                        '${AppStrings.bookingConfirmationBookingPolicyAgree} ',
-                  ),
-                  TextSpan(
-                    text: AppStrings.bookingConfirmationBookingPolicy,
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                text: isSubmitting
+                    ? 'جاري تأكيد الحجز...'
+                    : AppStrings.bookingConfirmationConfirmBooking,
+                onPressed: isSubmitting ? null : _submitBooking,
               ),
-            ).expanded(),
+            ),
+            AppSizes.p16.verticalSpace,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.shield_outlined,
+                  color: AppColors.textSecondary,
+                  size: 16.sp,
+                ),
+                AppSizes.p8.horizontalSpace,
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    children: [
+                      TextSpan(
+                        text:
+                            '${AppStrings.bookingConfirmationBookingPolicyAgree} ',
+                      ),
+                      TextSpan(
+                        text: AppStrings.bookingConfirmationBookingPolicy,
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ).expanded(),
+              ],
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

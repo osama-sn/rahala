@@ -37,7 +37,7 @@ class AdminBookingRemoteDataSourceImpl implements AdminBookingRemoteDataSource {
         queryParams['status'] = status;
       }
       final response = await dioClient.dio.get(
-        ApiEndpoints.adminBooking,
+        ApiEndpoints.booking,
         queryParameters: queryParams,
       );
       return PaginatedAdminBookingsModel.fromJson(response.data);
@@ -53,7 +53,7 @@ class AdminBookingRemoteDataSourceImpl implements AdminBookingRemoteDataSource {
   }) async {
     try {
       final response = await dioClient.dio.patch(
-        '${ApiEndpoints.adminBooking}/$bookingId/$action',
+        '${ApiEndpoints.booking}/$bookingId/$action',
       );
       return AdminBookingModel.fromJson(response.data['data']);
     } catch (e) {

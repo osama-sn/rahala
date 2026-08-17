@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rahala/core/constants/app_colors.dart';
@@ -8,6 +9,8 @@ import 'package:rahala/core/router/route_names.dart';
 import 'package:rahala/core/shared/widgets/app_button.dart';
 import 'package:rahala/core/theme/app_sizes.dart';
 import 'package:rahala/features/admin/trips/data/models/trip_model.dart';
+import 'package:rahala/features/user/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:rahala/features/user/favorites/presentation/cubit/favorites_states.dart';
 
 class TripDetailsStickyFooter extends StatelessWidget {
   final TripModel trip;
@@ -55,15 +58,29 @@ class TripDetailsStickyFooter extends StatelessWidget {
                     ),
             ).expanded(),
             AppSizes.p16.horizontalSpace,
-            Container(
-              width: 56.w,
-              height: AppSizes.buttonHeight,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border),
-                borderRadius: BorderRadius.circular(AppSizes.r12),
-                color: Colors.transparent,
-              ),
-              child: Icon(Icons.favorite_border, color: AppColors.textPrimary),
+            BlocBuilder<FavoritesCubit, FavoritesState>(
+              builder: (context, state) {
+                final cubit = context.read<FavoritesCubit>();
+                final isFav = state is FavoritesLoaded
+                    ? state.favorites.any((favTrip) => favTrip.id == trip.id)
+                    : trip.isFavorite;
+                return InkWell(
+                  onTap: () => cubit.toggleFavoriteTrip(trip),
+                  child: Container(
+                    width: 56.w,
+                    height: AppSizes.buttonHeight,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(AppSizes.r12),
+                      color: Colors.transparent,
+                    ),
+                    child: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? Colors.red : AppColors.textPrimary,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

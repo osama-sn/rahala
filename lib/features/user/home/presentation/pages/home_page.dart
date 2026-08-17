@@ -3,7 +3,7 @@ import 'package:rahala/core/constants/app_colors.dart';
 import 'package:rahala/core/constants/app_strings.dart';
 import 'package:rahala/features/user/bookings/presentation/pages/bookings_tab.dart';
 import 'package:rahala/features/user/profile/presentation/pages/profile_tab.dart';
-import 'tabs/favorites_tab.dart';
+import '../../../favorites/presentation/pages/favorites_tab.dart';
 import 'tabs/home_tab.dart';
 import 'tabs/notifications_tab.dart';
 
